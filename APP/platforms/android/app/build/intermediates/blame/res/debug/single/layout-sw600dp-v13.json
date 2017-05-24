@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "C:\\Users\\budao\\weex-pack\\generator\\platforms\\templates\\android\\app\\build\\intermediates\\res\\merged\\debug\\layout-sw600dp-v13\\design_layout_snackbar.xml",
+        "source": "C:\\Users\\budao\\weex-pack\\generator\\platforms\\templates\\android\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\23.1.1\\res\\layout-sw600dp\\design_layout_snackbar.xml"
+    },
+    {
+        "merged": "C:\\Users\\budao\\app-framework-android\\bin\\templates\\app\\build\\intermediates\\res\\merged\\debug\\layout-sw600dp-v13\\design_layout_snackbar.xml",
+        "source": "C:\\Users\\budao\\app-framework-android\\bin\\templates\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\23.1.1\\res\\layout-sw600dp\\design_layout_snackbar.xml"
+    },
+    {
+        "merged": "C:\\Weex\\android\\school-volunteer\\platforms\\android\\app\\build\\intermediates\\res\\merged\\debug\\layout-sw600dp-v13\\design_layout_snackbar.xml",
+        "source": "C:\\Weex\\android\\school-volunteer\\platforms\\android\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\23.1.1\\res\\layout-sw600dp\\design_layout_snackbar.xml"
+    }
+]

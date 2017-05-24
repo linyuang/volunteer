@@ -1,0 +1,609 @@
+<template>
+    <div class="register">
+        <Header head="{{Head}}"></Header>
+        <div class="content" onclick="allBlur()">
+            <div class="inputItem" repeat="{{inputItem in InputItems}}">
+                <div class="IITitleBox">
+                    <text class="IITitleTxT">{{inputItem.inputTitle}}</text>
+                </div>
+                <div class="IIContentBox">
+                    <div class="IIContentLeft">
+                        <input id="{{inputItem.id}}" class="IIInput {{inputBorder(inputItem)}}" type="{{inputItem.InputType}}"
+                               placeholder="{{inputItem.placeholder}}" maxlength="31"
+                                oninput="ruleCheck(inputItem)" onfocus="inputFocus(inputItem)" onblur="inputBlur(inputItem)">
+                    </div>
+                    <!--<div class="IIContentRight">-->
+                        <!--<image class="IIInputImage" src="{{inputImage(inputItem)}}"></image>-->
+                    <!--</div>-->
+                </div>
+                <div class="IITipBox">
+                    <text class="IITipTxT">{{inputTip(inputItem)}}</text>
+                </div>
+            </div>
+            <div class="TermsBox">
+                <div class="Checkbox">
+                    <div class="CheckboxDiv {{com_checkboxBg()}}" onclick="checkboxClick()">
+                        <image class="checkboxImage {{com_checkboxImage()}}" src="file:///android_asset/drawable/checkbox_true.png"></image>
+                    </div>
+                </div>
+                <div class="TermsContent">
+                    <text class="TCTxT">请阅读</text>
+                    <a class="" onclick="toTerms()">
+                        <text class="TCTxT TCLink">《志愿者注册协议》</text>
+                    </a>
+                </div>
+            </div>
+            <div class="submit {{com_submitBgColor()}}" onclick="submitClick()">
+                <text class="submitTxT {{com_submitTxTColor()}}">立即注册</text>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    import * as Header from '../components/header.we'
+    import Apis from '../mixins/api'
+    import Fetch from '../stream/fetch'
+    import Routers from '../router/router'
+    const reg_login = new BroadcastChannel('Register');
+    module.exports = {
+        data: {
+            Head:{
+                titleText:'用户注册',
+                backShow:'visible',
+                menuShow:'hidden'
+            },
+            RuleErrorTip:{
+                tooLong:'字段过长，请控制在6-30位之间',
+                tooShort:'字段过短，请控制在6-30位之间',
+                errorString:'字段中含有\' , * & # % < > = (空格)等违规字符，请删除',
+                repeatUserName:'该账号已被注册，请重新输入',
+                repeatEmail:'该邮箱已被注册，请重新输入',
+                repeatPassword:'密码不一致，请重新输入',
+                errorEmail:'该邮箱不正确，请重新输入',
+                rightString:''
+            },
+            InputItems:[
+                {
+                    id:"userName",
+                    InputType:'text',
+                    inputTitle:'新建账号：',
+                    placeholder:'请设置您的账号',
+                    inputValue:"",
+                    isFollowRule:true,
+                    errorType:'',
+                    isBlur:true
+                },
+                {
+                    id:"password",
+                    InputType:'password',
+                    inputTitle:'设置密码：',
+                    placeholder:'请输入您的密码',
+                    inputValue:"",
+                    isFollowRule:true,
+                    errorType:'',
+                    isBlur:true
+                },
+                {
+                    id:"passwordRepeat",
+                    InputType:'password',
+                    inputTitle:'确认密码：',
+                    placeholder:'请再次输入密码',
+                    inputValue:"",
+                    isFollowRule:true,
+                    errorType:'',
+                    isBlur:true
+                },
+                {
+                    id:"email",
+                    InputType:'text',
+                    inputTitle:'您的邮箱：',
+                    placeholder:'请输入您的邮箱',
+                    inputValue:"",
+                    isFollowRule:true,
+                    errorType:'',
+                    isBlur:true
+                }
+            ],
+            CheckBox:{
+                CanClick:false,
+                Clicked:false,
+                imageShow:false
+            },
+            Submit:{
+                CanClick:false
+            },
+            FocusTimestamp:0,
+            BlurTimestamp:0
+        },
+        methods: {
+            inputBorder:function (obj) {
+                return (obj.isFollowRule) ? 'inputBorderTrue' : 'inputBorderError';
+            },
+            inputImage:function (obj) {
+                let ImageBaseSrc = 'file:///android_asset/drawable/';
+                let result = '';
+                if(obj.isFollowRule){
+                    if(obj.isBlur && obj.inputValue != ''){
+                        result = ImageBaseSrc+'input_true.png';
+                    }else {
+                        result = '';
+                    }
+                }else {
+                    result = ImageBaseSrc+'input_error.png';
+                }
+                return result;
+            },
+            inputTip:function (obj) {
+                return Apis.ERRORTIP(obj);
+            },
+            ruleCheck:function (obj,event) {
+                let _this = this;
+                obj.inputValue = event.value;
+                switch (obj.id){
+                    case 'userName':
+                        _this.userNameInput(obj);
+                        break;
+                    case 'password':
+                        _this.passwordInput(obj);
+                        break;
+                    case 'passwordRepeat':
+                        _this.passwordRepeatInput(obj);
+                        break;
+                    case 'email':
+                        _this.emailInput(obj);
+                        break;
+                }
+            },
+            errorString:function (obj) {
+                let rule = /[,#$= ]|[<].{0,1000}[>]|[\u4e00-\u9fa5]/;
+                let result = rule.test(obj.inputValue);
+                if(result){
+                    obj.isFollowRule = false;
+                    obj.errorType = 'errorString';
+                    return true;
+                }else {
+                    obj.isFollowRule = true;
+                    obj.errorType = 'rightString';
+                    return false;
+                }
+            },
+            stringLength:function (obj) {
+                let value = obj.inputValue;
+                if(value.length >= 6 && value.length <= 30){
+                    obj.isFollowRule = true;
+                    obj.errorType = 'rightString';
+                    return false;
+                }else {
+                    if (value.length > 30){
+                        obj.isFollowRule = false;
+                        obj.errorType = 'tooLong';
+                    }
+                    return true;
+                }
+            },
+            userNameInput:function (obj) {
+                let _this = this;
+                if(_this.errorString(obj)){
+                }else {
+                    if(_this.stringLength(obj)){
+                    }else {
+                        obj.isFollowRule = true;
+                        obj.errorType = 'rightString';
+                    }
+                }
+            },
+            passwordInput:function (obj) {
+                let _this = this;
+                if(_this.errorString(obj)){
+                }else {
+                    if(_this.stringLength(obj)){
+                    }else {
+                        obj.isFollowRule = true;
+                        obj.errorType = 'rightString';
+                    }
+                }
+            },
+            passwordRepeatInput:function (obj) {
+                let _this = this;
+                if(_this.errorString(obj)){
+                }else {
+                    if(_this.stringLength(obj)){
+
+                    }
+                }
+            },
+            emailInput:function (obj) {
+                let _this = this;
+                let emailRule = /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/;
+                if(_this.errorString(obj)){
+                }else {
+                    if(_this.stringLength(obj)){
+                    }else {
+                        if(!emailRule.test(obj.inputValue)){
+                            obj.isFollowRule = false;
+                            obj.errorType = 'errorEmail';
+                        }else {
+                            obj.isFollowRule = true;
+                            obj.errorType = 'rightString';
+                        }
+                    }
+                }
+            },
+            inputBlur:function (obj,event) {
+                let _this = this;
+                if(_this.BlurTimestamp != 0){
+                    return;
+                }
+                _this.BlurTimestamp = event.timestamp;
+                _this.FocusTimestamp = 0;
+                obj.isBlur = true;
+                switch (obj.id){
+                    case 'userName':
+//                        Apis.TIP('userNameBlur触发');
+                        _this.userNameBlur(obj);
+                        _this.checkboxCheck();
+                        break;
+                    case 'password':
+                        _this.passwordBlur(obj);
+                        _this.checkboxCheck();
+                        break;
+                    case 'passwordRepeat':
+                        _this.passwordRepeatBlur(obj);
+                        _this.checkboxCheck();
+                        break;
+                    case 'email':
+                        _this.emailBlur(obj);
+                        _this.checkboxCheck();
+                        break;
+                }
+            },
+            userNameBlur:function (obj) {
+//                Apis.TIP('userName失焦了');
+                let _this = this;
+                if (!obj.isFollowRule || obj.inputValue.length == 0){
+                    return ;
+                }
+                if(_this.stringLength(obj) && obj.inputValue.length < 6 && obj.inputValue.length > 0){
+                    obj.isFollowRule = false;
+                    obj.errorType = 'tooShort';
+                }else {
+                    _this.userNameAsk(obj);
+                }
+            },
+            passwordBlur:function (obj) {
+                let _this = this;
+                if (!obj.isFollowRule || obj.inputValue.length == 0){
+                    return ;
+                }
+                if(_this.stringLength(obj) && obj.inputValue.length < 6 && obj.inputValue.length > 0){
+                    obj.isFollowRule = false;
+                    obj.errorType = 'tooShort';
+                }else {
+                    if (_this.InputItems[2].inputValue != ''){
+                        if(_this.InputItems[2].errorType == 'repeatPassword'){
+                            _this.InputItems[2].isFollowRule = true;
+                        }
+                        _this.$el(_this.InputItems[2].id).focus();
+                        _this.$el(_this.InputItems[2].id).blur();
+                    }
+                }
+            },
+            passwordRepeatBlur:function (obj) {
+                let _this = this;
+                if (!obj.isFollowRule || obj.inputValue.length == 0){
+                    return ;
+                }
+                if(_this.stringLength(obj) && obj.inputValue.length < 6 && obj.inputValue.length > 0){
+                    obj.isFollowRule = false;
+                    obj.errorType = 'tooShort';
+                }else {
+                    if(obj.inputValue != _this.InputItems[1].inputValue){
+                        obj.isFollowRule = false;
+                        obj.errorType = 'repeatPassword';
+                    }else {
+                        obj.isFollowRule = true;
+                        obj.errorType = 'rightString';
+                    }
+                }
+            },
+            emailBlur:function (obj) {
+//                Apis.TIP('email失焦了');
+                let _this = this;
+                if (!obj.isFollowRule || obj.inputValue.length == 0){
+                    return ;
+                }
+                _this.emailAsk(obj);
+            },
+            inputFocus:function (obj,event) {
+                let _this = this;
+                if(_this.FocusTimestamp != 0){
+                    return;
+                }
+                _this.FocusTimestamp = event.timestamp;
+                _this.BlurTimestamp = 0;
+                obj.isBlur = false;
+            },
+            allBlur:function () {
+                let _this = this;
+                _this.InputItems.forEach((item) => {
+                    _this.$el(item.id).blur();
+                })
+            },
+            userNameAsk:function (obj) {
+                let body = obj.id +'='+obj.inputValue;
+//                Apis.TIP('userNameAsk的body =>' + body);
+                Fetch.FETCHPOST('userNameAsk',body,(res) => {
+//                    Apis.TIP('账号验证放回：'+ res.data);
+//                    Apis.TIP('账号验证放回：'+ JSON.stringify(res.data));
+                    let Data = {};
+                    if(res.ok){
+                        Data = (typeof res.data == 'string') ? JSON.parse(res.data)["INFO"] : res.data["INFO"];
+                    }
+                    if(Data.code == 403){
+                        obj.isFollowRule = false;
+                        obj.errorType = 'repeatUserName';
+                    }else {
+                        obj.isFollowRule = true;
+                        obj.errorType = 'rightString';
+                    }
+                })
+            },
+            emailAsk:function (obj) {
+                let body = obj.id +'='+obj.inputValue;
+//                Apis.TIP('emailAsk的body =>' + body);
+                Fetch.FETCHPOST('emailAsk',body,(res) => {
+//                    Apis.TIP('邮箱验证放回：'+ res.data);
+//                    Apis.TIP('邮箱验证放回：'+ JSON.stringify(res.data));
+                    let Data = {};
+                    if(res.ok){
+                        Data = (typeof res.data == 'string') ? JSON.parse(res.data)["INFO"] : res.data["INFO"];
+                    }
+                    if(Data.code == 404){
+                        obj.isFollowRule = false;
+                        obj.errorType = 'repeatEmail';
+                    }else {
+                        obj.isFollowRule = true;
+                        obj.errorType = 'rightString';
+                    }
+                })
+            },
+            checkboxCheck:function () {
+                let _this = this;
+                let checkIndex = 0;
+                let checkObj = _this.CheckBox;
+                _this.InputItems.forEach((item) => {
+                    if(item.inputValue != '' && item.isFollowRule && item.isBlur){
+                        checkIndex += 1;
+                    }else {
+                        checkIndex -= 1;
+                    }
+                    checkObj.CanClick = (checkIndex == 4) ? true : false;
+                })
+            },
+            checkboxClick:function () {
+                let _this = this;
+                let checkObj = _this.CheckBox;
+                _this.allBlur();
+                if(!checkObj.CanClick){
+                    return;
+                }
+                checkObj.Clicked = !checkObj.Clicked;
+                checkObj.imageShow = !checkObj.imageShow;
+                _this.submitCheck();
+            },
+            submitCheck:function () {
+                let _this = this;
+                let submitObj = _this.Submit;
+                let checkboxClicked = _this.CheckBox.Clicked;
+                _this.InputItems.forEach((item) => {
+                    if(item.inputValue != '' && item.isFollowRule && item.isBlur && checkboxClicked){
+                        submitObj.CanClick = true;
+                    }else {
+                        submitObj.CanClick = false;
+                    }
+                })
+            },
+            submitClick:function () {
+                let _this = this;
+                let submitObj = _this.Submit;
+                _this.allBlur();
+                if(!submitObj.CanClick){
+                    return;
+                }
+                let result = {};
+                let body = '';
+                _this.InputItems.forEach((item) => {
+                    if(item.id != "passwordRepeat"){
+                        result[item.id] = item.inputValue;
+                    }
+                });
+                body = 'json=' + JSON.stringify(result);
+//                Apis.TIP('submit的body => '+ body);
+                Fetch.FETCHPOST('register',body,(res) => {
+//                    Apis.TIP('账号验证放回：'+ res.data);
+                    let Data = JSON.parse(res.data)["INFO"];
+                    if(Data.code == 406){
+                        Apis.TIP("注册成功");
+                        Apis.TIP(JSON.stringify(result));
+                        Apis.SETITEM("UserInfo",JSON.stringify(result),(event) => {
+                            if(event.result == "success"){
+                                reg_login.postMessage('registerSuccess');
+                                Routers.POP();
+                            }
+                        });
+                    }else {
+                        Apis.TIP('注册失败');
+                    }
+                })
+            },
+            toTerms:function () {
+                Apis.TIP('我点击了协议');
+            },
+            com_checkboxBg:function () {
+                let _this = this;
+                return (_this.CheckBox.CanClick) ? 'CheckboxClick' : 'CheckboxUnClick';
+            },
+            com_checkboxImage:function () {
+                let _this = this;
+                return (_this.CheckBox.imageShow) ? 'checkboxImageShow' : 'checkboxImageHidden'
+            },
+            com_submitBgColor:function () {
+                let _this = this;
+                return (_this.Submit.CanClick) ? 'submitClick' : 'submitUnClick'
+            },
+            com_submitTxTColor:function () {
+                let _this = this;
+                return (_this.Submit.CanClick) ? 'submitClickTextColor' : 'submitUnClickTextColor'
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .register{
+        flex: 1;
+        overflow-x: hidden;
+        overflow-y: scroll;
+    }
+    .content{
+        flex: 1;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 50px;
+    }
+    .inputItem{
+        flex-direction: column;
+        width: 650px;
+        height: 150px;
+        margin-bottom: 20px;
+    }
+    .IITitleBox{
+        flex: 1;
+        flex-direction: row;
+        align-items: center;
+    }
+    .IITitleTxT{
+        font-size: 30px;
+    }
+    .IIContentBox{
+        flex: 3;
+        flex-direction: row;
+        align-items: center;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+    .IIContentLeft{
+        flex: 1;
+        flex-direction: row;
+        align-items: center;
+    }
+    .IIInput{
+        flex: 1;
+        height: 84px;
+        padding-left: 10px;
+        font-size: 30px;
+        border-width: 2px;
+        border-style: solid;
+        border-radius: 10px;
+    }
+    .inputBorderTrue{
+        border-color: #c3c3c3;
+    }
+    .inputBorderError{
+        border-color: #ff0000;
+    }
+    .IIContentRight{
+        flex: 1;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+    .IIInputImage{
+        width: 40px;
+        height: 40px;
+    }
+    .IITipBox{
+        flex: 1;
+        flex-direction: row;
+        align-items: center;
+    }
+    .IITipTxT{
+        font-size: 20px;
+        color: #ff0000;
+    }
+    .TermsBox{
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        width: 650px;
+        height: 80px;
+    }
+    .Checkbox{
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+    }
+    .TermsContent{
+        flex: 9;
+        flex-direction: row;
+        align-items: center;
+    }
+    .CheckboxDiv {
+        justify-content: center;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+        border-width: 2px;
+        border-style: solid;
+    }
+    .CheckboxUnClick{
+        background-color: #e3e3e3;
+        border-color: #e3e3e3;
+    }
+    .CheckboxClick{
+        background-color: #ffffff;
+        border-color: #000000;
+    }
+    .checkboxImage{
+        width: 40px;
+        height: 40px;
+    }
+    .checkboxImageShow{
+        position: static;
+    }
+    .checkboxImageHidden{
+        position: absolute;
+        left: -100px;
+    }
+    .TCTxT{
+        font-size: 40px;
+    }
+    .TCLink{
+        color: #33b5e5;
+    }
+    .submit{
+        justify-content: center;
+        align-items: center;
+        margin-top: 50px;
+        width: 650px;
+        height: 100px;
+        border-radius: 10px;
+    }
+    .submitClick{
+        background-color: #f94831;
+    }
+    .submitUnClick{
+        background-color: #e3e3e3;
+    }
+    .submitTxT{
+        font-size: 60px;
+        font-weight: bold;
+    }
+    .submitClickTextColor{
+        color: #ffffff;
+    }
+    .submitUnClickTextColor{
+        color: #353535;
+    }
+</style>

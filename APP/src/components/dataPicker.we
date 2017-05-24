@@ -1,0 +1,28 @@
+<template>
+    <div class="dataPicker">
+        <div class="interceptBox"></div>
+        <div class="dateScrollBox">
+            <div class="" repeat=""></div>
+        </div>
+    </div>
+</template>
+
+<script>
+    module.exports = {
+        data: {
+            dateOptions:{
+
+            }
+        },
+        methods: {
+            getData:function () {
+                let _this = this;
+
+            }
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>

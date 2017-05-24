@@ -1,0 +1,170 @@
+<template>
+    <div class="webInfo">
+        <Header head="{{Head}}"></Header>
+        <web id="webview" class="webBox" src="{{WebSrc}}"></web>
+    </div>
+</template>
+<script>
+    import * as Header from '../components/header.we'
+    import Apis from '../mixins/api'
+    module.exports = {
+        data:{
+            BaseUrl:'http://192.168.191.1:8080/Yuc/',
+            WebSrc:'',
+            Head:{
+                titleText:'',
+                backShow:'visible',
+                menuShow:'hidden'
+            },
+            OrgInfo:{
+                src:'http://www.baidu.com'
+            }
+        },
+        methods:{
+            initData:function () {
+                const _this = this;
+                Apis.GETITEM('webInfo',(event) => {
+                    if(event.result == 'success'){
+                        let info = (typeof event.data == 'string') ? JSON.parse(event.data) : event.data;
+                        switch (info["type"]){
+                            case 'org':
+                                _this.orgData(info);
+                                break;
+                            case 'act':
+                                _this.actData(info);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+            },
+            orgData:function (obj) {
+                const _this = this;
+                Apis.GETITEM('UserInfo',(res) => {
+                    if (res.result == 'success'){
+                        _this.WebSrc = _this.BaseUrl + 'orgInfo/'+ obj.id + '?userId=' + res.userId;
+                    }else {
+                        _this.WebSrc = _this.BaseUrl + 'actInfo/'+ obj.id;
+                    }
+                    Apis.TIP( _this.WebSrc);
+                })
+            },
+            actData:function (obj) {
+                const _this = this;
+                Apis.GETITEM('UserInfo',(res) => {
+                    if (res.result == 'success'){
+                        _this.WebSrc = _this.BaseUrl + 'actInfo/'+ obj.id + '?userId=' + res.userId;
+                    }else {
+                        _this.WebSrc = _this.BaseUrl + 'actInfo/'+ obj.id;
+                    }
+                    Apis.TIP( _this.WebSrc);
+                })
+            }
+        },
+        created:function () {
+            this.initData();
+        }
+    }
+</script>
+
+<style scoped>
+    .webInfo{
+        flex: 1;
+        flex-direction: column;
+        width: 750px;
+    }
+    .webBox{
+        flex: 1;
+        width: 750px;
+    }
+</style>
+
+
+<!--<template>-->
+    <!--<div class="wrapper">-->
+        <!--<div class="group">-->
+            <!--<input class="input"  v-model="value" id="input" type="url" autofocus="false">-->
+        <!--</div>-->
+        <!--<div class="group">-->
+            <!--<text class="button" onclick="loadURL()">LoadURL</text>-->
+            <!--<text class="button" onclick="reload()">reload</text>-->
+        <!--</div>-->
+        <!--<web id="webview" src="{{url}}" class="webview" onpagestart="start" onpagefinish="finish" onerror="error()"></web>-->
+    <!--</div>-->
+<!--</template>-->
+
+<!--<script>-->
+    <!--const webview = weex.requireModule('webview')-->
+    <!--const modal = weex.requireModule('modal')-->
+
+    <!--module.exports = {-->
+        <!--data: {-->
+            <!--url : 'https://m.alibaba.com',-->
+            <!--value: 'https://m.alibaba.com'-->
+        <!--},-->
+        <!--methods: {-->
+            <!--loadURL (event) {-->
+                <!--this.url = this.value-->
+                <!--modal.toast({ message: 'load url:' + this.url })-->
+                <!--setTimeout(() => {-->
+                    <!--console.log('will go back.')-->
+                    <!--modal.toast({ message: 'will go back' })-->
+                    <!--webview.goBack(this.$el('webview'))-->
+                <!--}, 10000)-->
+            <!--},-->
+            <!--reload (event) {-->
+                <!--console.log('will reload webview')-->
+                <!--modal.toast({ message: 'reload' })-->
+                <!--webview.reload(this.$el('webview'))-->
+            <!--},-->
+            <!--start (event) {-->
+                <!--console.log('pagestart', event)-->
+                <!--modal.toast({ message: 'pagestart' })-->
+            <!--},-->
+            <!--finish (event) {-->
+                <!--console.log('pagefinish', event)-->
+                <!--modal.toast({ message: 'pagefinish' })-->
+            <!--},-->
+            <!--error (event) {-->
+                <!--console.log('error', event)-->
+                <!--modal.toast({ message: 'error' })-->
+            <!--}-->
+        <!--}-->
+    <!--}-->
+<!--</script>-->
+
+<!--<style scoped>-->
+    <!--.group {-->
+        <!--flex-direction: row;-->
+        <!--justify-content: space-around;-->
+        <!--margin-top: 20px;-->
+    <!--}-->
+    <!--.input {-->
+        <!--width: 600px;-->
+        <!--font-size: 36px;-->
+        <!--padding-top: 15px;-->
+        <!--padding-bottom: 15px;-->
+        <!--border-width: 2px;-->
+        <!--border-style: solid;-->
+        <!--border-color: #BBBBBB;-->
+    <!--}-->
+    <!--.button {-->
+        <!--width: 225px;-->
+        <!--text-align: center;-->
+        <!--background-color: #D3D3D3;-->
+        <!--padding-top: 15px;-->
+        <!--padding-bottom: 15px;-->
+        <!--margin-bottom: 30px;-->
+        <!--font-size: 30px;-->
+    <!--}-->
+
+    <!--.webview {-->
+        <!--margin-left: 75px;-->
+        <!--width: 600px;-->
+        <!--height: 750px;-->
+        <!--border-width: 2px;-->
+        <!--border-style: solid;-->
+        <!--border-color: #41B883;-->
+    <!--}-->
+<!--</style>-->

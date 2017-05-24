@@ -1,0 +1,112 @@
+<template>
+  <div class="container">
+    <wxc-tabbar selected-color="{{selectedColor}}" unselected-color="{{unselectedColor}}" tab-items={{tabItems}}></wxc-tabbar>
+  </div>
+</template>
+
+<script>
+    import Store from './initialData/index'
+    import router from './router/router'
+    import Apis from './mixins/api'
+    import * as WeexComponents from 'weex-components'
+    module.exports = {
+        data: {
+            selectedColor:'#f05228',
+            unselectedColor:'#c3c3c3',
+            tabItems:[
+                {
+                    index: 0,
+                    title: "首页",
+                    titleColor:'#c3c3c3',
+                    icon: '',
+                    image: "file:///android_asset/drawable/home_unlight.png",
+                    selectedImage: "file:///android_asset/drawable/home_light.png",
+                    src: "file://assets/dist/views/home.js",
+                    visibility: "visible"
+                },
+                {
+                    index: 1,
+                    title: "公告",
+                    titleColor:'#c3c3c3',
+                    icon: '',
+                    image: "file:///android_asset/drawable/star_unlight.png",
+                    selectedImage: "file:///android_asset/drawable/star_light.png",
+                    src: "file://assets/dist/views/star.js",
+                    visibility: "hidden"
+                },
+//                {
+//                    index: 2,
+//                    title: "盟友",
+//                    titleColor:'#c3c3c3',
+//                    icon: '',
+//                    image: "file:///android_asset/drawable/chat_unlight.png",
+//                    selectedImage: "file:///android_asset/drawable/chat_light.png",
+//                    src: "file://assets/dist/views/friend.js",
+//                    visibility: "hidden"
+//                },
+                {
+                    index: 2,
+                    title: "个人",
+                    titleColor:'#c3c3c3',
+                    icon: '',
+                    image: "file:///android_asset/drawable/user_unlight.png",
+                    selectedImage: "file:///android_asset/drawable/user_light.png",
+                    src: "file://assets/dist/views/user.js",
+                    visibility: "hidden"
+                }
+            ]
+        },
+        methods:{
+            clearStorage:function () {
+                let keys = [];
+                Apis.GETKEYS((event) => {
+                    if(event.result == 'success'){
+                        keys = event.data;
+                        keys.forEach((item) => {
+                            Apis.REMOVEITEM(item,(res)=>{
+                                if(res.result == 'success'){}
+                            })
+                        })
+                    }
+                })
+            },
+            initialData:function () {
+                if(event.result == 'success' && event.data == 0){
+                    for(let [key,value] of Object.entries(Store.state)){
+                        Apis.SETITEM(key,value,(event)=>{
+                            if(event.result == "success"){
+//                            Apis.TIP("初始化成功");
+                            }
+                        });
+                    }
+                }
+//                Apis.STORAGELENGTH((event) => {
+//
+//                })
+            },
+            removeData:function () {
+                let _this = this;
+                Apis.GETITEM('SaveIf',(event) => {
+                    if (event.result == "success"){
+                        if(event.data == "false"){
+                            _this.initialData();
+                        }
+                    }
+                })
+            },
+        },
+        created:function () {
+            this.removeData();
+        }
+    }
+</script>
+
+<style>
+  .container{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    background-color: #ffffff;
+  }
+</style>

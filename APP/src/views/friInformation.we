@@ -1,0 +1,16 @@
+<template>
+    <div class="friInformation">
+        <scroller class="friInformationBox" show-scrollbar="false" scroll-direction="vertical">
+
+        </scroller>
+        <div class="buttonBox">
+
+        </div>
+    </div>
+</template>
+<script>
+
+</script>
+<style scoped>
+
+</style>

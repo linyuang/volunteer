@@ -1,0 +1,288 @@
+<template>
+    <div class="user">
+        <div class="head">
+            <text class="titleText">个人</text>
+        </div>
+        <scroller class="content" show-scrollbar="false" scroll-direction="vertical">
+            <div class="userInformationBox" onclick="Login()">
+                <div class="userImageBox">
+                    <image class="userImage" src="{{com_userHead()}}"></image>
+                </div>
+                <text class="userName">{{UserInfo.name}}</text>
+            </div>
+            <div class="features">
+                <div class="featuresBox" repeat="{{featureItem in featuresList}}">
+                    <div class="featureBox" onclick="pathPush(featureItem)">
+                        <div class="featureImageBox">
+                            <image class="featureImage" src="{{featureItem.imageUrl}}"></image>
+                        </div>
+                        <div class="featureNameBox">
+                            <text class="featureName">{{featureItem.name}}</text>
+                        </div>
+                        <div class="rightArrowBox">
+                            <image class="rightArrow" src="file:///android_asset/drawable/right_arrow.png"></image>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </scroller>
+        <div class="loginOutBox {{com_loginOut()}}">
+            <div class="loginOut" onclick="outLogin()">
+                <text class="loginOutText">退出登录</text>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    import Apis from '../mixins/api'
+    import Router from '../router/router'
+    const user_login = new BroadcastChannel('Login');
+    const user_userInfo = new BroadcastChannel('SetUserInfo');
+
+    module.exports = {
+        data:{
+            path:'user',
+            isLogin:false,
+            UserInfo:{
+                head:"login.png",
+                name:""
+            },
+            featuresList:[
+                {
+                    imageUrl:'file:///android_asset/drawable/pen.png',
+                    name:'个人简历'
+                },
+                {
+                    imageUrl:'file:///android_asset/drawable/heart.png',
+                    name:'爱心历程'
+                },
+                {
+                    imageUrl:'file:///android_asset/drawable/UserPath/news_72px.png',
+                    name:'我的消息'
+                }
+            ]
+        },
+        methods:{
+            upData:function () {
+                let _this = this;
+                Apis.GETITEM("Login",(event) => {
+                    if (event.result == "success"){
+                        _this.isLogin = (typeof event.data == "string") ? Boolean(event.data) : event.data;
+                    }
+                });
+                Apis.GETITEM("UserInfo",(event) => {
+                    if (event.result == "success"){
+                        _this.UserInfo = (typeof event.data == "string") ? JSON.parse(event.data) : event.data;
+                        Apis.TIP("更新成功，数据为："+event.data);
+                    }
+                })
+            },
+            tip:function () {
+                Apis.TIP(this.path);
+            },
+            Login:function () {
+                if(!this.isLogin){
+                    Router.PUSH('/views/login');
+                }else {
+                    Router.PUSH('/views/setUserInformation');
+                }
+            },
+            getKeys:function () {
+                Apis.GETKEYS((e) => {
+                    if(e.result == "success"){
+                        Apis.TIP(e.data.join(''));
+                    }
+                });
+                Apis.GETITEM('timeOut',(e) => {
+                   Apis.TIP('e.result => '+ e.result +',e.data => ' + e.data);
+                });
+            },
+            pathPush:function (obj) {
+                let isLogin = this.isLogin;
+                if(!isLogin){
+                   Apis.TOAST('请先登录');
+                }else {
+                    let name = obj.name;
+                    switch (name){
+                        case '个人简历':
+                            Router.PUSH('/views/setUserInformation');
+                            break;
+                        case '爱心历程':
+                            Apis.TOAST('该功能还在开发');
+                            break;
+                        case '我的消息':
+                            Apis.TOAST('该功能还在开发');
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            },
+            outLogin:function () {
+                const _this = this;
+                let keys = [];
+                Apis.GETKEYS((event) => {
+                    if(event.result == 'success'){
+                        keys = event.data;
+                        keys.forEach((item) => {
+                            Apis.REMOVEITEM(item,(res)=>{
+                                if(res.result == 'success'){
+                                    _this.isLogin = false;
+                                    _this.UserInfo = {
+                                        head:"setHead.jpg",
+                                        name:""
+                                    }
+                                }
+                            })
+                        })
+                    }
+                })
+            },
+            com_userHead:function () {
+                let _this = this;
+                return Router.GETIMAGE('head',_this.UserInfo.head);
+            },
+            com_loginOut:function () {
+                let _this = this;
+                return (_this.isLogin) ? "loginOutShow" : "loginOutHidden";
+            }
+        },
+        created:function () {
+            let _this = this;
+            _this.upData();
+            user_login.onmessage = function (event) {
+                if(event.data == "loginSuccess"){
+                    _this.upData();
+                }
+            };
+            user_userInfo.onmessage = function (event) {
+                if(event.data == "setInfoSuccess"){
+                    _this.upData();
+                }
+            };
+        }
+    }
+</script>
+
+<style scoped>
+    .user{
+        display: flex;
+        flex: 1;
+    }
+    .head{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100px;
+        background-color: #ffffff;
+        border-bottom-style:solid;
+        border-bottom-color: #c3c3c3;
+        border-bottom-width: 2px;
+    }
+    .titleText{
+        font-size: 35px;
+        font-weight: bold;
+        color: #000000;
+    }
+    .content{
+        flex: 1;
+        flex-direction: column;
+        background-color: #eeeeee;
+    }
+    .userInformationBox{
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 750px;
+        height: 375px;
+        background-color: #ADFF2F;
+    }
+    .userImageBox{
+        justify-content: center;
+        align-items: center;
+        width: 200px;
+        height: 200px;
+        background-color: #ffffff;
+        border-radius: 100px;
+    }
+    .userImage{
+        width: 200px;
+        height: 200px;
+    }
+    .userName{
+        margin-top: 30px;
+        font-size: 30px;
+    }
+    .features{
+        flex: 1;
+        padding-top: 50px;
+    }
+    .featuresBox{
+        flex-direction: column;
+        width: 750px;
+        background-color: #ffffff;
+    }
+    .featureBox{
+        flex-direction: row;
+        align-items: center;
+        width: 750px;
+        height: 100px;
+        border-bottom-color: #eeeeee;
+        border-bottom-width: 2px;
+        border-bottom-style: solid;
+    }
+    .featureImageBox{
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+    }
+    .featureImage{
+        width: 32px;
+        height: 32px;
+    }
+    .featureNameBox{
+        flex: 8;
+        justify-content: center;
+    }
+    .featureName{
+        font-size: 30px;
+        color: #000000;
+    }
+    .rightArrowBox{
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+    }
+    .rightArrow{
+        width: 18px;
+        height: 30px;
+    }
+    .loginOutBox{
+        width: 750px;
+        height: 160px;
+        justify-content: center;
+        align-items: center;
+        background-color: #eeeeee;
+    }
+    .loginOut{
+        width: 750px;
+        height: 100px;
+        justify-content: center;
+        align-items: center;
+        background-color: #ff0000;
+    }
+    .loginOutText{
+        font-size: 40px;
+        font-weight: bold;
+        color: #ffffff;
+    }
+    .loginOutShow{
+        position: static;
+    }
+    .loginOutHidden{
+        position: absolute;
+        left: -750px;
+    }
+
+</style>
