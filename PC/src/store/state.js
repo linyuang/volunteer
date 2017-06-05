@@ -2,7 +2,7 @@ const state = {
   ProductionMode:false,
   CommunityLogin:false,
   CommunityInfo:'',
-  CommunityLoginType:0,
+  CommunityLoginType:1,
   RuleErrorTip:{
     tooLong:'字段过长，请控制在6-30位之间',
     tooShort:'字段过短，请控制在6-30位之间',

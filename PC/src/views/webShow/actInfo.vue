@@ -1,7 +1,7 @@
 <template>
   <div class="actInfo">
     <div class="content">
-      <p class="actTitle" v-text="ActInfo.title"></p>
+      <p class="actTitle" v-text="ActInfo.name"></p>
       <img class="actPost" :src="PosterSrc" alt="活动海报" title="活动海报">
       <pre class="actTxT" v-text="ActInfo.quotation"></pre>
       <button class="actJoin" :class="com_buttonClass" v-if="com_buttonShow" v-text="com_buttonTxT" @click="joinAct"></button>
@@ -30,11 +30,11 @@
           ActId:'',
           UserId:'',
           ActInfo:{
-            title:'xxx',
-            head:'http://www.bz55.com/uploads/allimg/121016/1-121016094252.jpg',
-            quotation:'网易 (NASDAQ: NTES)是中国的互联网公司，利用互联网技术，加强人与人之间信息的交流和共享，实现“网聚人的力量”。创始人兼CEO是丁磊。在开发互联网应用、服务及其它技术方面，网易在推出了包括中文全文检索、全中文大容量免费邮件系统、无限容量免费网络相册、免费电子贺卡站、网上虚拟社区、网上拍卖平台、24小时客户服务中心在内的业内领先产品或服务，还通过自主研发推出了国产网络游戏。[1]网易公司推出了门户网站、在线游戏、电子邮箱、在线教育、电子商务、在线音乐、网易bobo等多种服务。[1]2016年净收入为381.79亿元人民币（54.99亿美元），在线游戏净收入为279.80亿元人民币（40.30亿美元），广告服务净收入为21.52亿元人民币（3.10亿美元），邮箱、电商及其他业务的净收入为80.46亿元人民币（11.59亿美元）。'
+            name:'',//xxx
+            image:'',//http://www.bz55.com/uploads/allimg/121016/1-121016094252.jpg
+            quotation:''//网易 (NASDAQ: NTES)是中国的互联网公司，利用互联网技术，加强人与人之间信息的交流和共享，实现“网聚人的力量”。创始人兼CEO是丁磊。在开发互联网应用、服务及其它技术方面，网易在推出了包括中文全文检索、全中文大容量免费邮件系统、无限容量免费网络相册、免费电子贺卡站、网上虚拟社区、网上拍卖平台、24小时客户服务中心在内的业内领先产品或服务，还通过自主研发推出了国产网络游戏。[1]网易公司推出了门户网站、在线游戏、电子邮箱、在线教育、电子商务、在线音乐、网易bobo等多种服务。[1]2016年净收入为381.79亿元人民币（54.99亿美元），在线游戏净收入为279.80亿元人民币（40.30亿美元），广告服务净收入为21.52亿元人民币（3.10亿美元），邮箱、电商及其他业务的净收入为80.46亿元人民币（11.59亿美元）。
           },
-          PosterSrc:'http://www.bz55.com/uploads/allimg/121016/1-121016094252.jpg',
+          PosterSrc:'',//http://www.bz55.com/uploads/allimg/121016/1-121016094252.jpg
           IsJoin:false,
           IsSameAct:false,
           IsDeleteActShow:false,
@@ -44,15 +44,25 @@
     methods:{
       initData(){
           const _this = this;
-          let body = 'id='+ _this.$route.params.id;
+          let body = 'id=';
+          let actInfo = _this.ActInfo;
+          _this.ActId = _this.$route.params.id;
+          body += _this.ActId;
           _this.$store.dispatch('RETURNACTIVITY',body)
             .then((res) => {
-              if(res["INFO"].code == ''){
-                  _this.ActInfo = res[""];
+              if(res["INFO"].code == '605'){
+                  actInfo.name = res["ACTIVITY"].name;
+                  actInfo.image = res["ACTIVITY"].image;
+                  actInfo.quotation = res["ACTIVITY"].quotation;
+                  _this.actPoster();
               }
             });
       },
+      //检测用户是否参加了活动
       isUserJoin(){
+        if(!this.$route.query.userId){
+            return ;
+        }
         const _this = this;
         let result = {};
         let body = 'json=';
@@ -74,7 +84,7 @@
         const _this = this;
         let result = {};
         result["type"] = 'act';
-        result["head"] = (_this.ActInfo.head) ? _this.ActInfo.head : "";
+        result["head"] = (_this.ActInfo.image) ? _this.ActInfo.image : "";
         _this.$store.dispatch('IMAGEURL',result)
           .then((res) => {
             _this.PosterSrc = res;
@@ -82,12 +92,12 @@
       },
       joinAct(){
         const _this = this;
-        let result = {};
-        let body = 'json=';
-        result["actId"] = _this.$route.params.id;
-        result["userId"] = _this.$route.query.userId;
-        body += JSON.stringify(result);
         if(!_this.IsJoin){
+          let result = {};
+          let body = 'json=';
+          result["actId"] = _this.$route.params.id;
+          result["userId"] = _this.$route.query.userId;
+          body += JSON.stringify(result);
           _this.$store.dispatch('JOINACT',body)
             .then((res) => {
               if(res["INFO"].code == '700'){
@@ -131,9 +141,9 @@
           return (!this.IsJoin) ? '报名参加' : (this.IsSameAct) ? '已报名': '已报名其他活动';
       }
     },
-    watch:{
-      ActInfo:"actPoster"
-    },
+//    watch:{
+//      ActInfo:"actPoster"
+//    },
     created(){
       this.initData();
       this.isUserJoin();

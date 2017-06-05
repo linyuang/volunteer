@@ -48,7 +48,6 @@
     methods:{
       upDataList(){
         const _this = this;
-        let actList = _this.TableLists;
         let result = {};
         let body = 'json=';
         result["comId"] = _this.$route.params.comId;
@@ -67,18 +66,6 @@
                 _this.TableLists = _this.TableLists.concat(res["ACTIVITY"]);
               }
             });
-//        }else {
-//          _this.$store.dispatch('GETLOCALORGACTLIST')
-//            .then((res) => {
-//              _this.ComId = res["comId"];
-//              _this.TableLists = actList.concat(res["orgActList"]);
-//              _this.TableLists.forEach((item,index) => {
-//                item["number"] = index + 1;
-//                item["ref"] = 'activity' + index;
-//                item["check"] = false;
-//              })
-//            })
-//        }
       },
       oldPage(){
         const _this = this;
@@ -126,11 +113,12 @@
         let min = (_this.Page-1)*num;
         let max = _this.Page*num;
         let list = _this.TableLists;
-        if(max > list.length - 1){
-            arr = list.slice(min,list.length - 1);
+        if(max > list.length){
+            arr = list.slice(min,list.length);
         }else {
             arr = list.slice(min,max);
         }
+        console.log(min+','+max+','+JSON.stringify(list)+','+JSON.stringify(arr));
         return arr;
       }
     },

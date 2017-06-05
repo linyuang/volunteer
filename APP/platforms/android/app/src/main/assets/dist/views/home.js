@@ -339,6 +339,29 @@
 	    return RuleErrorTip[obj.errorType];
 	};
 
+	exports.GETHEAD = function (obj) {
+	    var url = 'http://192.168.191.1:8080/Yuc/YucResource/';
+	    var head = obj["head"];
+	    var img = String(head).indexOf('\\') > -1 ? String(head).substr(String(head).lastIndexOf('\\') + 1) : String(head);
+	    switch (obj['type']) {
+	        case 'user':
+	            url = url + 'User/Head/' + img;
+	            break;
+	        case 'org':
+	            url = url + 'Community/Head/' + img;
+	            break;
+	        case 'act':
+	            url = url + 'Activity/' + img;
+	            break;
+	        case 'admin':
+	            url = url + 'Admin/Head/' + img;
+	            break;
+	        default:
+	            break;
+	    }
+	    return url;
+	};
+
 /***/ },
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
@@ -1350,7 +1373,7 @@
 	        userId: "",
 	        userName: "",
 	        password: "",
-	        head: "setHead.jpg",
+	        head: "login.jpg",
 	        name: "",
 	        sex: "",
 	        birth: "",
@@ -1493,8 +1516,9 @@
 	              "classList": [
 	                "sliderImageBox"
 	              ],
+	              "shown": function () {return this.com_actShow(this.item)},
 	              "repeat": {
-	                "expression": function () {return this.sliderImageList},
+	                "expression": function () {return this.sliderActList},
 	                "value": "item"
 	              },
 	              "events": {
@@ -1508,7 +1532,7 @@
 	                  ],
 	                  "attr": {
 	                    "resize": "cover",
-	                    "src": function () {return this.item.url}
+	                    "src": function () {return this.com_actImage(this.item)}
 	                  }
 	                }
 	              ]
@@ -1526,6 +1550,7 @@
 	          "classList": [
 	            "organization"
 	          ],
+	          "shown": function () {return this.com_orgShow(this.typeItem)},
 	          "repeat": {
 	            "expression": function () {return this.volunteerList},
 	            "value": "typeItem"
@@ -1552,7 +1577,7 @@
 	                        "orgTitleText"
 	                      ],
 	                      "attr": {
-	                        "value": function () {return this.typeItem.orgName}
+	                        "value": function () {return this.typeItem.name}
 	                      }
 	                    }
 	                  ]
@@ -1575,7 +1600,7 @@
 	                            "orgLogo"
 	                          ],
 	                          "attr": {
-	                            "src": function () {return this.typeItem.logoUrl}
+	                            "src": function () {return this.com_orgHead(this.typeItem)}
 	                          }
 	                        }
 	                      ]
@@ -1781,18 +1806,8 @@
 	        Size: 10,
 	        MaxPage: false,
 	        LoadingShow: 'hide',
-	        sliderImageList: [],
-	        volunteerList: [{
-	            id: '001',
-	            orgName: '青年志愿者协会',
-	            logoUrl: 'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/loadingCoverImage.jpg',
-	            quotation: '&nbsp&nbsp&nbsp&nbsp xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-	        }, {
-	            id: '002',
-	            orgName: '存心善堂',
-	            logoUrl: 'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/hong.png',
-	            quotation: '&nbsp&nbsp&nbsp&nbsp xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-	        }]
+	        sliderActList: [],
+	        volunteerList: []
 	    }},
 	    methods: {
 	        initData: function initData() {
@@ -1802,14 +1817,16 @@
 	        upDataHomeAct: function upDataHomeAct() {
 	            var _this = this;
 	            var result = {};
-	            var body = 'json';
+	            var body = 'json=';
 	            result["page"] = 0;
 	            result["size"] = 4;
 	            body += (0, _stringify2.default)(result);
 	            _fetch2.default.FETCHPOST('getHomeActs', body, function (res) {
 	                if (res.ok) {
-	                    _this.sliderImageList = typeof res.data == 'string' ? JSON.parse(res.data) : res.data;
-	                    _this.ReFreshShow = 'hide';
+	                    var data = typeof res.data == 'string' ? JSON.parse(res.data) : res.data;
+	                    if (data["INFO"].code == '610') {
+	                        _this.sliderActList = data["ACTIVITY"];
+	                    }
 	                }
 	            });
 	        },
@@ -1823,18 +1840,22 @@
 	            if (!_this.MaxPage) {
 	                _fetch2.default.FETCHPOST('getOrgList', body, function (res) {
 	                    if (res.ok) {
-	                        var list = typeof res.data == 'string' ? JSON.parse(res.data) : res.data;
-	                        _this.volunteerList = _this.volunteerList.concat(list);
-	                        if (list.length < _this.Size) {
-	                            _this.MaxPage = true;
+	                        var data = typeof res.data == 'string' ? JSON.parse(res.data) : res.data;
+	                        if (data["INFO"].code == '512') {
+	                            var list = data["COMMUNITY"];
+	                            _this.volunteerList = _this.volunteerList.concat(list);
+	                            if (list.length < _this.Size) {
+	                                _this.MaxPage = true;
+	                            }
+	                            _this.LoadingShow = 'hide';
 	                        }
-	                        _this.LoadingShow = 'hide';
 	                    }
 	                });
 	            }
 	        },
 	        loading: function loading() {
 	            var _this = this;
+	            _api2.default.TIP('我加载中');
 	            _this.LoadingShow = 'show';
 	            if (!_this.MaxPage) {
 	                _this.Page += 1;
@@ -1862,9 +1883,30 @@
 	                    _router2.default.PUSH('/views/webInfo', function () {});
 	                }
 	            });
+	        },
+	        com_actShow: function com_actShow(obj) {
+	            return obj.enable == 1;
+	        },
+	        com_orgShow: function com_orgShow(obj) {
+	            return obj.enable == 1;
+	        },
+	        com_actImage: function com_actImage(obj) {
+	            var body = {};
+	            body['type'] = 'act';
+	            body['head'] = obj["image"];
+
+	            return _api2.default.GETHEAD(body);
+	        },
+	        com_orgHead: function com_orgHead(obj) {
+	            var body = {};
+	            body['type'] = 'org';
+	            body['head'] = obj["head"];
+	            return _api2.default.GETHEAD(body);
 	        }
 	    },
-	    created: function created() {}
+	    created: function created() {
+	        this.initData();
+	    }
 	};}
 	/* generated by weex-loader */
 
@@ -1893,12 +1935,13 @@
 	var EmailAskUrl = BaseURL + 'Yuc/user/register/email/vaild';
 
 	//首页——获取推荐活动
-	var GetHomeActs = BaseURL + '';
+	var GetHomeActs = BaseURL + 'Yuc/activity/findTop'; //610
+
 	//首页——获取组织列表
-	var GetOrgList = BaseURL + '';
+	var GetOrgList = BaseURL + 'Yuc/community/getCommunitiesFromApp';
 
 	//公告——获取活动列表
-	var GetActList = BaseURL + '';
+	var GetActList = BaseURL + 'Yuc/activity/getactivities';
 
 	//盟友——获取用户好友列表
 	var GetFriendList = BaseURL + '';
@@ -1954,7 +1997,7 @@
 
 	exports.FETCHPOST = function (type, body, callback) {
 	    var URL = getUrl(type);
-	    _api2.default.TIP('对应链接：' + URL);
+	    // Apis.TIP('对应链接：' + URL);
 	    return stream.fetch({
 	        method: 'POST',
 	        url: URL,

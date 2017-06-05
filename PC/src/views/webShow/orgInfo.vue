@@ -28,13 +28,13 @@
   export default{
     data(){
       return{
-        OrgHeadSrc:"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495936796&di=b88a8591b832cf344fb1e84300f66c3e&imgtype=jpg&er=1&src=http%3A%2F%2Fa4.att.hudong.com%2F44%2F55%2F20300542038769143711557315031_s.jpg",
+        OrgHeadSrc:"",//https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495936796&di=b88a8591b832cf344fb1e84300f66c3e&imgtype=jpg&er=1&src=http%3A%2F%2Fa4.att.hudong.com%2F44%2F55%2F20300542038769143711557315031_s.jpg
         OrgInfo:{
-          name:'网易公司',
-          head:'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495936796&di=b88a8591b832cf344fb1e84300f66c3e&imgtype=jpg&er=1&src=http%3A%2F%2Fa4.att.hudong.com%2F44%2F55%2F20300542038769143711557315031_s.jpg',
-          time:'19970601',
-          address:'中国广州',
-          quotation:'网易 (NASDAQ: NTES)是中国的互联网公司，利用互联网技术，加强人与人之间信息的交流和共享，实现“网聚人的力量”。创始人兼CEO是丁磊。在开发互联网应用、服务及其它技术方面，网易在推出了包括中文全文检索、全中文大容量免费邮件系统、无限容量免费网络相册、免费电子贺卡站、网上虚拟社区、网上拍卖平台、24小时客户服务中心在内的业内领先产品或服务，还通过自主研发推出了国产网络游戏。[1]网易公司推出了门户网站、在线游戏、电子邮箱、在线教育、电子商务、在线音乐、网易bobo等多种服务。[1]2016年净收入为381'
+          name:'',//网易公司
+          head:'',//https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1495936796&di=b88a8591b832cf344fb1e84300f66c3e&imgtype=jpg&er=1&src=http%3A%2F%2Fa4.att.hudong.com%2F44%2F55%2F20300542038769143711557315031_s.jpg
+          time:'',//19970601
+          address:'',//中国广州
+          quotation:''//网易 (NASDAQ: NTES)是中国的互联网公司，利用互联网技术，加强人与人之间信息的交流和共享，实现“网聚人的力量”。创始人兼CEO是丁磊。在开发互联网应用、服务及其它技术方面，网易在推出了包括中文全文检索、全中文大容量免费邮件系统、无限容量免费网络相册、免费电子贺卡站、网上虚拟社区、网上拍卖平台、24小时客户服务中心在内的业内领先产品或服务，还通过自主研发推出了国产网络游戏。[1]网易公司推出了门户网站、在线游戏、电子邮箱、在线教育、电子商务、在线音乐、网易bobo等多种服务。[1]2016年净收入为381
         }
       }
     },
@@ -42,10 +42,16 @@
       initData(){
         const _this = this;
         let body = 'id=' + _this.$route.params.id;
-        _this.$store.dispatch('',body)
+        let orgInfo = _this.OrgInfo
+        _this.$store.dispatch('GETCOMMUNITY',body)
           .then((res) => {
-            if(res["INFO"].code == ""){
-              _this.OrgInfo = res[""];
+            if(res["INFO"].code == "516"){
+              orgInfo.name = res["COMMUNITY"].name;
+              orgInfo.head = res["COMMUNITY"].head;
+              orgInfo.time = res["COMMUNITY"].setUp;
+              orgInfo.address = res["COMMUNITY"].address;
+              orgInfo.quotation = res["COMMUNITY"].quotation;
+              _this.orgHead();
             }
           })
       },
@@ -68,9 +74,9 @@
         return year+month+day;
       }
     },
-    watch:{
-      OrgInfo:"orgHead"
-    },
+//    watch:{
+//      OrgInfo:"orgHead"
+//    },
     created(){
         this.initData();
     }

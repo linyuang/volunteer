@@ -5,24 +5,7 @@
 </template>
 
 <script>
-  //判别访问设备类型
-  (function browserRedirect(){
-    let sUserAgent = navigator.userAgent.toLowerCase();
-    let bIsIpad = sUserAgent.match(/ipad/i) == 'ipad';
-    let bIsIphone = sUserAgent.match(/iphone os/i) == 'iphone os';
-    let bIsMidp = sUserAgent.match(/midp/i) == 'midp';
-    let bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == 'rv:1.2.3.4';
-    let bIsUc = sUserAgent.match(/ucweb/i) == 'web';
-    let bIsCE = sUserAgent.match(/windows ce/i) == 'windows ce';
-    let bIsWM = sUserAgent.match(/windows mobile/i) == 'windows mobile';
-
-    if(bIsIpad || bIsIphone || bIsMidp || bIsUc7 || bIsUc || bIsCE || bIsWM){
-      window.fontSize = (window.innerWidth * 100) / 1600;
-    }else{
-      window.fontSize = (window.innerWidth < 1100) ? (1100  * 100) / 1600 : (window.innerWidth * 100) / 1600;
-    }
-    console.log("我判断了设备类型");
-  })();
+  window.fontSize = (window.innerWidth * 100) / 1600;
   document.querySelector('html').style.fontSize = window.fontSize + 'px';
   export default {
     data(){

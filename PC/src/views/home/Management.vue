@@ -14,16 +14,16 @@
           </div>
           <div class="tableList" v-for="(item,index) in com_lists()">
             <div class="unit number" v-text="index+1"></div>
-            <div class="unit userName" v-text="item.userName"></div>
+            <div class="unit userName" v-text="com_userName(item)"></div>
             <div class="unit name" v-text="item.name"></div>
             <div class="unit nature" v-text="com_nature(item)"></div>
             <div class="unit contact" v-text="com_contact(item)"></div>
             <div class="unit status" v-text="com_status(item)"></div>
             <div class="unit freeze">
-              <button class="button " v-bind="{'disable':item.enable == 1}" @click="com_buttonFreeze(item)">冻结</button>
+              <button class="button "  v-bind="{'disabled':com_freezeDisable(item)}" @click="com_buttonFreeze(item)">冻结</button>
             </div>
             <div class="unit enable">
-              <button class="button " v-bind="{'disable':!item.enable == 1}" @click="com_buttonEnable(item)">激活</button>
+              <button class="button " v-bind="{'disabled':com_enableDisable(item)}" @click="com_buttonEnable(item)">激活</button>
             </div>
           </div>
         </div>
@@ -99,14 +99,14 @@
           ],
           actList:[
             {
-              ref:"userName",
+              ref:"id",
               css:"userName",
-              name:"账号"
+              name:"活动id"
             },
             {
               ref:"name",
               css:"name",
-              name:"组织名"
+              name:"活动名"
             },
             {
               ref:"nature",
@@ -135,6 +135,7 @@
       //初始化数据
       initInfo(){
         this.ManaId = this.$route.params.id;
+        this.Page = 1;
         this.MaxPage = false;
         this.TableLists = [];
         this.upDataList();
@@ -161,16 +162,16 @@
         const _this = this;
         let result = {};
         let body = 'json=';
-        result["page"] = _this.Page;
+        result["page"] = _this.Page-1;
         result["size"] = _this.Size;
         body += JSON.stringify(result);
         _this.$store.dispatch('ADMINGETORGS',body)
           .then((res) => {
-            if(res["INFO"].code == ''){
-              if(res["INFO"].message.length < _this.Size){
+            if(res["INFO"].code == '512'){
+              if(res["COMMUNITY"].length < _this.Size){
                 _this.MaxPage = true;
               }
-              _this.TableLists =  _this.TableLists.concat(res["INFO"].message);
+              _this.TableLists =  _this.TableLists.concat(res["COMMUNITY"]);
               console.log('读取组织数据成功');
             }else {
               console.log('获取组织数据失败');
@@ -182,16 +183,16 @@
         const _this = this;
         let result = {};
         let body = 'json=';
-        result["page"] = _this.Page;
+        result["page"] = _this.Page-1;
         result["size"] = _this.Size;
         body += JSON.stringify(result);
         _this.$store.dispatch('ADMINGETUSERS',body)
           .then((res) => {
-            if(res["INFO"].code == ''){
-              if(res["INFO"].message.length < _this.Page){
+            if(res["INFO"].code == '410'){
+              if(res["INFO"].message.length < _this.Size){
                   _this.MaxPage = true;
               }
-              _this.TableLists = res["INFO"].message;
+              _this.TableLists = _this.TableLists.concat(res["USER"]);
               console.log('读取用户数据成功');
             }else {
               console.log('获取用户数据失败');
@@ -203,16 +204,16 @@
         const _this = this;
         let result = {};
         let body = 'json=';
-        result["page"] = _this.Page;
+        result["page"] = _this.Page-1;
         result["size"] = _this.Size;
         body += JSON.stringify(result);
         _this.$store.dispatch('ADMINGETACT',body)
           .then((res) => {
-            if(res["INFO"].code == ''){
-              if(res["INFO"].message.length < _this.Page){
+            if(res["INFO"].code == '609'){
+              if(res["INFO"].message.length < _this.Size){
                 _this.MaxPage = true;
               }
-              _this.TableLists = res["INFO"].message;
+              _this.TableLists =  _this.TableLists.concat(res["ACTIVITY"]);
               console.log('读取用户数据成功');
             }else {
               console.log('获取用户数据失败');
@@ -236,67 +237,89 @@
       },
       //冻结组织
       freezeOrgList(obj){
+          alert('我在冻结组织');
         const _this = this;
         let body = 'userName=' + obj["userName"];
         _this.$store.dispatch('ADMINFREEZEORG',body)
           .then((res) => {
-            if(res["INFO"].code == ''){
-              obj.enable = 2;
+            if(res["INFO"].code == '514'){
+              obj.enable = 0;
             }
           })
       },
       //激活组织
       enableOrgList(obj){
+        alert('我在激活组织');
         const _this = this;
         let body = 'userName=' + obj["userName"];
         _this.$store.dispatch('ADMINENABLEORG',body)
           .then((res) => {
-            if(res["INFO"].code == ''){
+            if(res["INFO"].code == '513'){
               obj.enable = 1;
+            }else {
+                if(res["INFO"].code == '515'){
+                    alert('激活失败');
+                }
             }
           })
       },
       //冻结用户
       freezeUserList(obj){
+        alert('我在冻结用户');
         const _this = this;
         let body = 'userName=' + obj["userName"];
         _this.$store.dispatch('ADMINFREEZEUSER',body)
           .then((res) => {
-            if(res["INFO"].code == ''){
+            if(res["INFO"].code == '412'){
               obj.enable = 2;
             }
           })
       },
       //激活用户
       enableUserList(obj){
+        alert('我在激活用户');
         const _this = this;
         let body = 'userName=' + obj["userName"];
         _this.$store.dispatch('ADMINENABLEUSER',body)
           .then((res) => {
-            if(res["INFO"].code == ''){
+            if(res["INFO"].code == '411'){
               obj.enable = 1;
+            }else {
+                if(res["INFO"].code == '413'){
+                    alert('用户激活失败');
+                }
             }
           })
       },
       //冻结活动
       freezeActList(obj){
+        alert('我在冻结活动');
         const _this = this;
         let body = 'id' + obj["id"];
         _this.$store.dispatch('ADMINFREEZEACT',body)
           .then((res) => {
-            if(res["INFO"].code == ''){
+            if(res["INFO"].code == '606'){
                 obj.enable = 2;
+            }else {
+                if(res["INFO"].code == '607'){
+                  alert('活动冻结失败');
+                }
             }
           })
       },
       //激活活动
       enableActList(obj){
+        alert('我在激活活动');
         const _this = this;
         let body = 'id' + obj["id"];
         _this.$store.dispatch('ADMINENABLEACT',body)
           .then((res) => {
-            if(res["INFO"].code == ''){
+            if(res["INFO"].code == '610'){
               obj.enable = 1;
+            }else {
+                if(res["INFO"].code == '611'){
+                    alert('活动激活失败');
+                }
             }
           })
       },
@@ -317,8 +340,8 @@
             break;
         }
       },
-      //计算函数——触发对应的冻结功能
-      com_buttonFreeze(obj){
+      //计算函数——触发对应的激活功能
+      com_buttonEnable(obj){
         const _this = this;
         switch (_this.ManaId){
           case 'org':
@@ -329,23 +352,6 @@
             break;
           case 'events':
             _this.enableActList(obj);
-            break;
-          default:
-            break;
-        }
-      },
-      //计算函数——触发对应的激活功能
-      com_buttonEnable(obj){
-          const _this = this;
-        switch (_this.ManaId){
-          case 'org':
-            _this.freezeOrgList(obj);
-            break;
-          case 'user':
-            _this.freezeUserList(obj);
-            break;
-          case 'events':
-            _this.freezeActList(obj);
             break;
           default:
             break;
@@ -399,27 +405,68 @@
         }
         return result;
       },
+      //计算函数——返回userName对应的数据
+      com_userName(obj){
+        const _this = this;
+        let result;
+        switch (_this.ManaId){
+          case "org":
+            result = (obj["userName"]) ? obj["userName"] : "数据错误（空缺）";
+            break;
+          case "user":
+            result = (obj["userName"]) ? obj["userName"]: "数据错误（空缺）";
+            break;
+          case 'events':
+            result = (obj["id"]) ? obj["id"] : "数据错误（空缺）";
+            break;
+          default:
+            break;
+        }
+        return result;
+      },
       //计算函数——返回contact对应的数据
       com_contact(obj){
         const _this = this;
         let result;
         switch (_this.ManaId){
           case "org":
-            result = obj["address"];
+            result = (obj["address"]) ? obj["address"] : "未设置地址";
             break;
           case "user":
-            result = obj["phone"];
+            result = (obj["phone"]) ? obj["phone"]: "未设置联系方式";
             break;
           case 'events':
-            result = obj["comName"];
+            result = (obj["comName"]) ? obj["comName"] : "数据空缺";
             break;
           default:
             break;
         }
+        return result;
       },
       //计算函数——返回状态栏对应的数据
       com_status(obj){
-        return (obj["enable"] == 0) ? '冻结中' : '激活';
+        const _this = this;
+        let result;
+        switch (_this.ManaId){
+          case "org":
+            result = (obj["enable"] == 0) ? '冻结中' : '激活';
+            break;
+          case "user":
+            result = (obj["enable"] == 0) ? '冻结中' : '激活';
+            break;
+          case 'events':
+            result = (obj["enable"] == 2) ? '活动结束' : (obj["enable"] == 1) ? '进行中' : '冻结中';
+            break;
+          default:
+            break;
+        }
+        return result;
+      },
+      com_freezeDisable(obj){
+          return (obj.enable == 0 || obj.enable == 2);
+      },
+      com_enableDisable(obj){
+          return (obj.enable == 1 || obj.enable == 2);
       }
     },
     watch:{

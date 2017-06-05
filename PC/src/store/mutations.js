@@ -1,4 +1,5 @@
-export function SET_COMMUNITYLOGINTYPE(state,{type}) {
+export function SET_COMMUNITYLOGINTYPE(state,type) {
+  console.log('type:'+type);
   state.CommunityLoginType = type;
 }
 
@@ -22,10 +23,8 @@ export function SET_COMMUNITYINFO(state,result) {
   state.CommunityInfo = result;
 }
 
-export function SET_USERNAMEISUSE(state,result) {
-  state.USERNAMEISUSE = result;
-}
-
-export function CLEARTOKEN(state) {
-  state.COMMUNITYLOGIN = "";
+export function LOGINOUT(state) {
+  state.CommunityLogin = false;
+  state.CommunityInfo = '';
+  state.CommunityLoginType = 1;
 }

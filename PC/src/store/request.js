@@ -10,33 +10,43 @@ const UserNameAskUrl = BaseURL + 'community/userNameVaild';
 const EmailAskUrl = BaseURL + 'community/emailVaild';
 const SetInfoUrl = BaseURL + 'community/update';
 const HeadUrl = BaseURL + 'community/head';
+
+//发送活动
 const SendActivity = BaseURL + 'activity/add';
+//活动海报上传
 const UpLoadPoster = BaseURL + 'activity/upload';
+//返回单个活动
 const ReturnActivity = BaseURL + 'activity/getActivityById';
+//返回活动列表
 const ReturnAllActivity = BaseURL + 'activity/queryByCommunity';
+//活动冻结
 const UnableActivity = BaseURL + 'activity/unable';
+//活动结束
 const FinishActivity = BaseURL + 'activity/finish';
+
+//请求单个组织
+const GetCommunity = BaseURL + 'community/getCommunity';
+
 
 //组织获取报名列表;
 const ReturnJoinTable = BaseURL + 'apply/getInterview';
 //组织通过报名(批量通过)
 const JoinPass = BaseURL + 'apply/interview';
 //报名活动
-const JoinAct = BaseURL + '/apply/add';
+const JoinAct = BaseURL + 'apply/add';
 //取消报名
-const DeleteJoin = BaseURL + '/apply/delete';
+const DeleteJoin = BaseURL + 'apply/delete';
 
-const AdminLogin = BaseURL + '/admin/login';
-const AdminGetOrgs = BaseURL + '/community/getCommunitiesFromApp';
-const AdminFreezeOrg = BaseURL + '/community/unable';
-const AdminEnableOrg = BaseURL + '/community/enable';
-const AdminGetUsers = BaseURL + '/user/getusers';
-const AdminFreezeUser = BaseURL + '/user/unable';
-const AdminEnableUser = BaseURL + '/user/enable';
-const AdminGetAct = BaseURL + '/activity/getactivities';
-const AdminFreezeAct = BaseURL + '/activity/unable';
-const AdminEnableAct = BaseURL + '/activity/enable';
-
+const AdminLogin = BaseURL + 'admin/login';
+const AdminGetOrgs = BaseURL + 'community/getCommunitiesFromApp';
+const AdminFreezeOrg = BaseURL + 'community/unable';
+const AdminEnableOrg = BaseURL + 'community/enable';
+const AdminGetUsers = BaseURL + 'user/getusers';
+const AdminFreezeUser = BaseURL + 'user/unable';
+const AdminEnableUser = BaseURL + 'user/enable';
+const AdminGetAct = BaseURL + 'activity/getactivities';
+const AdminFreezeAct = BaseURL + 'activity/unable';
+const AdminEnableAct = BaseURL + 'activity/enable';
 
 const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
@@ -125,6 +135,9 @@ function getUrl(type) {
       break;
     case 'finishActivity':
       result = FinishActivity;
+      break;
+    case 'getCommunity':
+      result = GetCommunity;
       break;
     case 'returnTable':
       result = ReturnJoinTable;
@@ -291,6 +304,11 @@ export function postUnableActivity(body) {
 
 export function postFinishActivity(body) {
   let Url = getUrl('finishActivity');
+  return POST(Url,body);
+}
+
+export function postGetCommunity(body) {
+  let Url = getUrl('getCommunity');
   return POST(Url,body);
 }
 

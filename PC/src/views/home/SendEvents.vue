@@ -16,7 +16,7 @@
              :style="{backgroundImage:'url('+EventPoster.value+')'}" @click="touchInputFile()">
         <input :ref="EventPoster.ref" class="eventPosterInput" type="file" accept="image/jpeg,image/png"
                v-bind="{disabled:!EventPoster.isUploadFinish}" @change="allInputTest(EventPoster)">
-        <p class="inputTestTip" v-text="posterTip()"></p>
+        <p class="posterTip" v-text="posterTip()"></p>
       </div>
       <div class="eventTxTBox">
         <p class="eventTxTTitle">活动内容：</p>
@@ -129,7 +129,7 @@
               if(res["INFO"].code == 601){
                 console.log('我成功了');
                 obj.isUploadFinish = true;
-                obj.trueName  = res["INFO"].message;
+                obj.trueName = res["INFO"].message;
                 _this.buttonEnable();
               }
             })
@@ -198,7 +198,7 @@
         result["comId"] = _this.ComId;
         result["name"] = title.value;
         result["image"] = poster.trueName;
-        result["quotation"] = txt.value;
+        result["quotation"] = txt.value.replace('%','%25').replace('$','%24').replace('@','%40');
         body = "json=" + JSON.stringify(result);
         _this.RewriteEnable = false;
         _this.$store.dispatch('SENDACTIVITY',body)
@@ -222,13 +222,9 @@
         let poster = _this.EventPoster;
         if(poster.trueName != ""){
             if(poster.isUploadFinish){
-                if(poster.trueName != ''){
-                  result = _this.$refs[poster.ref].files[0].name;
-                }else {
-                  result = '';
-                }
+              result = _this.$refs[poster.ref].files[0].name;
             }else {
-                result = 'loading......';
+              result = 'loading......';
             }
         }else {
           result = _this.$store.state.RuleErrorTip[poster.errorType];
@@ -353,6 +349,12 @@
     height: 0.5rem;
     font-size: 0.2rem;
   }
+  .posterTip{
+    width: 3.5rem;
+    font-size: 0.2rem;
+    text-align: center;
+    color: #000000;
+  }
   .inputTestTip{
     font-size: 0.1rem;
     color: #ff0000;
@@ -392,11 +394,5 @@
     font-size: 0.2rem;
     border-radius: 0.1rem;
     outline: none;
-  }
-  .buttonEnable{
-
-  }
-  .buttonFeeze{
-
   }
 </style>

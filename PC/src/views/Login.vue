@@ -9,7 +9,7 @@
           <p class="inputTitle" v-text="input.title"></p>
         </div>
         <div class="inputBox">
-          <input :ref="input.ref" class="userInput" :type="input.type" :placeholder="input.placeholder" @focus="allFocus(input)" @input="inputALL(input)" @blur="allBlur(input)">
+          <input :ref="input.ref" class="userInput" :type="input.type" :value="input.value" :placeholder="input.placeholder" @focus="allFocus(input)" @input="inputALL(input)" @blur="allBlur(input)">
           <div class="inputTipImageBox">
             <img class="inputTipImage" :src="com_inputTipImg(input)" v-show="com_inputTipImgShow(input)">
           </div>
@@ -66,6 +66,10 @@
           titleClick(){
             const _this = this;
             _this.LoginType = (_this.LoginType == 1) ? 0 : 1;
+            console.log('loginType:'+_this.LoginType);
+            _this.UserInputs.forEach((item) => {
+              item.value = '';
+            })
           },
           allFocus(obj){
             obj.isBlur = false;
@@ -154,11 +158,17 @@
             this.$store.dispatch('LOGIN', body)
               .then((res) => {
                 console.log("res:",res);
-                if(res["INFO"].code == 500){
-                  _this.$store.commit("SET_COMMUNITYLOGIN",true);
-                  _this.$store.commit("SET_COMMUNITYINFO",JSON.stringify(res["COMMUNITY"]));
-                  _this.$store.commit("SET_COMMUNITYLOGINTYPE",_this.LoginType);
-                  _this.$router.push('/home');
+                let type = _this.LoginType;
+                if(res["INFO"].code == 500 ){
+                    if(res["COMMUNITY"].enable == 1){
+                      alert('我登录成功；'+type);
+                      _this.$store.commit("SET_COMMUNITYLOGIN",true);
+                      _this.$store.commit("SET_COMMUNITYINFO",JSON.stringify(res["COMMUNITY"]));
+                      _this.$store.commit("SET_COMMUNITYLOGINTYPE",type);
+                      _this.$router.push('/home');
+                    }else {
+                      alert('您的账号已被冻结，请尽快联系客服');
+                    }
                 }else {
                   tip = (res["INFO"].code == 501) ? "该组织不存在" : "密码错误";
                   alert("登录失败，"+tip);
@@ -168,12 +178,17 @@
             if(_this.LoginType == 0){
               this.$store.dispatch('ADMINLOGIN', body)
                 .then((res) => {
-                  console.log("res:",res);
-                  if(res["INFO"].code == 500){
-                    _this.$store.commit("SET_COMMUNITYLOGIN",true);
-                    _this.$store.commit("SET_COMMUNITYINFO",JSON.stringify(res["COMMUNITY"]));
-                    _this.$store.commit("SET_COMMUNITYLOGINTYPE",_this.LoginType);
-                    _this.$router.push('/home');
+                  let type = _this.LoginType;
+                  if(res["INFO"].code == 600){
+                      if(res["ADMIN"].enable == "1"){
+                        alert('我登录成功；'+type);
+                        _this.$store.commit("SET_COMMUNITYLOGIN",true);
+                        _this.$store.commit("SET_COMMUNITYINFO",JSON.stringify(res["ADMIN"]));
+                        _this.$store.commit("SET_COMMUNITYLOGINTYPE",type);
+                        _this.$router.push('/home');
+                      }else {
+                        alert('该账号已被冻结');
+                      }
                   }else {
                     tip = (res["INFO"].code == 501) ? "该管理员不存在" : "密码错误";
                     alert("登录失败，"+tip);

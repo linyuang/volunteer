@@ -250,7 +250,7 @@
         _this.DetailInfo.forEach((item) => {
           result[item.ref] = item.value;
         });
-        result["quotation"] = _this.Quotation.value.replace('%','25%').replace('$','24%').replace('@','40%');
+        result["quotation"] = _this.Quotation.value.replace('%','%25').replace('$','%24').replace('@','%40');
         result["head"] = _this.HeadInfo.trueName;
         body = 'json=' + JSON.stringify(result);
         console.log("body=>"+body);

@@ -527,6 +527,29 @@
 	    return RuleErrorTip[obj.errorType];
 	};
 
+	exports.GETHEAD = function (obj) {
+	    var url = 'http://192.168.191.1:8080/Yuc/YucResource/';
+	    var head = obj["head"];
+	    var img = String(head).indexOf('\\') > -1 ? String(head).substr(String(head).lastIndexOf('\\') + 1) : String(head);
+	    switch (obj['type']) {
+	        case 'user':
+	            url = url + 'User/Head/' + img;
+	            break;
+	        case 'org':
+	            url = url + 'Community/Head/' + img;
+	            break;
+	        case 'act':
+	            url = url + 'Activity/' + img;
+	            break;
+	        case 'admin':
+	            url = url + 'Admin/Head/' + img;
+	            break;
+	        default:
+	            break;
+	    }
+	    return url;
+	};
+
 /***/ },
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
@@ -1538,7 +1561,7 @@
 	        userId: "",
 	        userName: "",
 	        password: "",
-	        head: "setHead.jpg",
+	        head: "login.jpg",
 	        name: "",
 	        sex: "",
 	        birth: "",
@@ -1656,12 +1679,13 @@
 	var EmailAskUrl = BaseURL + 'Yuc/user/register/email/vaild';
 
 	//首页——获取推荐活动
-	var GetHomeActs = BaseURL + '';
+	var GetHomeActs = BaseURL + 'Yuc/activity/findTop'; //610
+
 	//首页——获取组织列表
-	var GetOrgList = BaseURL + '';
+	var GetOrgList = BaseURL + 'Yuc/community/getCommunitiesFromApp';
 
 	//公告——获取活动列表
-	var GetActList = BaseURL + '';
+	var GetActList = BaseURL + 'Yuc/activity/getactivities';
 
 	//盟友——获取用户好友列表
 	var GetFriendList = BaseURL + '';
@@ -1717,7 +1741,7 @@
 
 	exports.FETCHPOST = function (type, body, callback) {
 	    var URL = getUrl(type);
-	    _api2.default.TIP('对应链接：' + URL);
+	    // Apis.TIP('对应链接：' + URL);
 	    return stream.fetch({
 	        method: 'POST',
 	        url: URL,
@@ -2070,7 +2094,7 @@
 	                var data_return = typeof res.data == 'string' ? JSON.parse(res.data) : res.data;
 	                var returnUserInfo = data_return["USER"];
 	                var LocalUserInfo = {};
-	                if (data_return["INFO"].code == 400) {
+	                if (data_return["INFO"].code == 400 && data_return["USER"].enable == 1) {
 	                    _api2.default.TIP('登录成功');
 	                    LocalUserInfo = result;
 	                    var _iteratorNormalCompletion = true;
