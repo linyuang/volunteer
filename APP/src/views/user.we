@@ -74,7 +74,7 @@
                 Apis.GETITEM("UserInfo",(event) => {
                     if (event.result == "success"){
                         _this.UserInfo = (typeof event.data == "string") ? JSON.parse(event.data) : event.data;
-                        Apis.TIP("更新成功，数据为："+event.data);
+//                        Apis.TIP("更新成功，数据为："+event.data);
                     }
                 })
             },
@@ -130,7 +130,7 @@
                                 if(res.result == 'success'){
                                     _this.isLogin = false;
                                     _this.UserInfo = {
-                                        head:"setHead.jpg",
+                                        head:"login.jpg",
                                         name:""
                                     }
                                 }

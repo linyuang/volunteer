@@ -12,12 +12,13 @@ const UserNameAskUrl = BaseURL + 'Yuc/user/register/userName/vaild';
 const EmailAskUrl = BaseURL + 'Yuc/user/register/email/vaild';
 
 //首页——获取推荐活动
-const GetHomeActs = BaseURL + '';
+const GetHomeActs = BaseURL + 'Yuc/activity/findTop';//610
+
 //首页——获取组织列表
-const GetOrgList = BaseURL + '';
+const GetOrgList = BaseURL + 'Yuc/community/getCommunitiesFromApp';
 
 //公告——获取活动列表
-const GetActList = BaseURL + '';
+const GetActList = BaseURL + 'Yuc/activity/getactivities';
 
 //盟友——获取用户好友列表
 const GetFriendList = BaseURL + '';
@@ -74,7 +75,7 @@ exports.FETCHGET = function (type,rope,callback) {
 
 exports.FETCHPOST = function (type,body,callback) {
     let URL = getUrl(type);
-    Apis.TIP('对应链接：' + URL);
+    // Apis.TIP('对应链接：' + URL);
     return stream.fetch({
         method: 'POST',
         url:URL,

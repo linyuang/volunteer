@@ -10,7 +10,7 @@
                         <text class="actContentTitle">{{item.name}}</text>
                     </div>
                     <div class="actContentImageBox">
-                        <image class="actContentImage" src="{{item.imageUrl}}"></image>
+                        <image class="actContentImage" src="{{com_actImage(item)}}"></image>
                     </div>
                     <div class="actContentTextBox">
                         <text class="actContentText">{{item.quotation}}</text>
@@ -36,20 +36,20 @@
             ReFreshShow:'hide',
             LoadingShow:'hide',
             activity:[
-                {
-                    timeout:'2016-04-01',
-                    name:'4月9号天使行动',
-                    imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/tianshi.jpg',
-                    quotation:'电影《天使行动》，由方中信、李赛凤、西城秀树领衔主演，故事讲述港、日和泰三地警方首度联手将泰东边境之罂粟田烧毁，一亚洲庞大集团派出杀手报复警方。美国派出天使之组参与行动。',
-                    belong:'广东技术师范学院青年志愿者协会'
-                },
-                {
-                    timeout:'2016-04-03',
-                    name:'4月22号扶贫组困',
-                    imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/zukun.jpg',
-                    quotation:'为进一步做好社区资助弱势群体的工作,帮助弱势群体走出困境,激励他们积极向上、努力进取，改变面貌，走向新生活。社区党支部坚持以“三个代表”重要思想和党的十七大会议精神为指引，',
-                    belong:'广东省汕头市存心善堂'
-                }
+//                {
+//                    timeout:'2016-04-01',
+//                    name:'4月9号天使行动',
+//                    imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/tianshi.jpg',
+//                    quotation:'电影《天使行动》，由方中信、李赛凤、西城秀树领衔主演，故事讲述港、日和泰三地警方首度联手将泰东边境之罂粟田烧毁，一亚洲庞大集团派出杀手报复警方。美国派出天使之组参与行动。',
+//                    belong:'广东技术师范学院青年志愿者协会'
+//                },
+//                {
+//                    timeout:'2016-04-03',
+//                    name:'4月22号扶贫组困',
+//                    imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/zukun.jpg',
+//                    quotation:'为进一步做好社区资助弱势群体的工作,帮助弱势群体走出困境,激励他们积极向上、努力进取，改变面貌，走向新生活。社区党支部坚持以“三个代表”重要思想和党的十七大会议精神为指引，',
+//                    belong:'广东省汕头市存心善堂'
+//                }
             ]
         },
         methods: {
@@ -57,18 +57,23 @@
                 const _this = this;
                 let result = {};
                 let body = 'json=';
-                result["page"] = _this.Page;
-                result["Size"] = _this.Size;
+                result["page"] = _this.Page-1;
+                result["size"] = _this.Size;
                 body += JSON.stringify(result);
                 if(!_this.MaxPage){
+//                    Apis.TIP('act的body:'+body);
                     Fetch.FETCHPOST('getActList',body,(res) => {
                         if(res.ok){
-                            let list = (typeof res.data == 'string') ? JSON.parse(res.data) : res.data;
-                            if(list.length < _this.Size){
-                                _this.MaxPage = true;
+                            let data = (typeof res.data == 'string') ? JSON.parse(res.data) : res.data;
+//                            Apis.TIP('act:'+JSON.stringify(data));
+                            if(data["INFO"].code == '609'){
+                                let list = data["ACTIVITY"];
+                                if(list.length < _this.Size){
+                                    _this.MaxPage = true;
+                                }
+                                _this.activity = _this.activity.concat(list);
+                                _this.LoadingShow = false;
                             }
-                            _this.activity = _this.activity.concat(list);
-                            _this.LoadingShow = false;
                         }
                     })
                 }else {
@@ -92,7 +97,16 @@
                         Router.PUSH('/views/webInfo',()=>{});
                     }
                 });
-            }
+            },
+            com_actImage:function (obj) {
+                let body = {};
+                body['type'] = 'act';
+                body['head'] = obj["image"];
+                return Apis.GETHEAD(body);
+            },
+        },
+        created:function () {
+            this.upDataActList();
         }
     }
 </script>

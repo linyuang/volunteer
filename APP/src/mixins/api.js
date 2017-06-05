@@ -95,3 +95,26 @@ exports.ERRORTIP = function (obj) {
     };
     return RuleErrorTip[obj.errorType];
 };
+
+exports.GETHEAD = function (obj) {
+    let url = 'http://192.168.191.1:8080/Yuc/YucResource/';
+    let head = obj["head"];
+    let img = (String(head).indexOf('\\') > -1) ? String(head).substr(String(head).lastIndexOf('\\') + 1) : String(head);
+    switch (obj['type']){
+        case 'user':
+            url = url + 'User/Head/' + img;
+            break;
+        case 'org':
+            url = url + 'Community/Head/' + img;
+            break;
+        case 'act':
+            url = url + 'Activity/' + img;
+            break;
+        case 'admin':
+            url = url + 'Admin/Head/' + img;
+            break;
+        default:
+            break;
+    }
+    return url;
+};

@@ -5,19 +5,22 @@
         </div>
         <scroller class="content" show-scrollbar="false" scroll-direction="vertical">
             <slider class="slider" interval="2000" auto-play="true">
-                <div class="sliderImageBox" repeat="{{item in sliderImageList}}" onclick="actClick(item)">
-                    <image class="sliderImage" resize="cover" src="{{item.url}}"></image>
+                <div class="sliderImageBox" if="{{com_actShow(item)}}" repeat="{{item in sliderActList}}" onclick="actClick(item)">
+                    <image class="sliderImage" resize="cover" src="{{com_actImage(item)}}"></image>
                 </div>
                 <indicator class="indicator"></indicator>
             </slider>
-            <div class="organization" repeat="{{typeItem in volunteerList}}" onclick="orgClick(typeItem)">
+            <!--<div class="organization">-->
+                <!--<text>{{com_text()}}</text>-->
+            <!--</div>-->
+            <div class="organization" if="{{com_orgShow(typeItem)}}" repeat="{{typeItem in volunteerList}}" onclick="orgClick(typeItem)">
                 <div class="orgList">
                     <div class="orgTitleBox">
-                        <text class="orgTitleText">{{typeItem.orgName}}</text>
+                        <text class="orgTitleText">{{typeItem.name}}</text>
                     </div>
                     <div class="orgContentBox">
                         <div class="orgLogoBox">
-                            <image class="orgLogo" src="{{typeItem.logoUrl}}"></image>
+                            <image class="orgLogo" src="{{com_orgHead(typeItem)}}"></image>
                         </div>
                         <div class="orgQuotationBox">
                             <text class="orgQuotationText">{{typeItem.quotation}}</text>
@@ -43,21 +46,21 @@
             Size:10,
             MaxPage:false,
             LoadingShow:'hide',
-            sliderImageList: [
+            sliderActList: [
             ],
             volunteerList:[
-                {
-                    id:'001',
-                    orgName:'青年志愿者协会',
-                    logoUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/loadingCoverImage.jpg',
-                    quotation:'&nbsp&nbsp&nbsp&nbsp xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-                },
-                {
-                    id:'002',
-                    orgName:'存心善堂',
-                    logoUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/hong.png',
-                    quotation:'&nbsp&nbsp&nbsp&nbsp xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-                }
+//                {
+//                    id:'001',
+//                    orgName:'青年志愿者协会',
+//                    logoUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/loadingCoverImage.jpg',
+//                    quotation:'&nbsp&nbsp&nbsp&nbsp xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+//                },
+//                {
+//                    id:'002',
+//                    orgName:'存心善堂',
+//                    logoUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/hong.png',
+//                    quotation:'&nbsp&nbsp&nbsp&nbsp xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+//                }
             ]
         },
         methods: {
@@ -68,14 +71,17 @@
             upDataHomeAct:function () {
                 const _this = this;
                 let result = {};
-                let body = 'json';
+                let body = 'json=';
                 result["page"] = 0;
                 result["size"] = 4;
                 body += JSON.stringify(result);
                 Fetch.FETCHPOST('getHomeActs',body,(res) => {
                     if(res.ok){
-                        _this.sliderImageList = (typeof res.data == 'string') ? JSON.parse(res.data) : res.data;
-                        _this.ReFreshShow = 'hide';
+                        let data = (typeof res.data == 'string') ? JSON.parse(res.data) : res.data;
+                        if(data["INFO"].code == '610'){
+                            _this.sliderActList = data["ACTIVITY"];
+//                            Apis.TIP('sliderActList:'+JSON.stringify(data));
+                        }
                     }
                 })
             },
@@ -87,14 +93,20 @@
                 result["size"] = _this.Size;
                 body += JSON.stringify(result);
                 if(!_this.MaxPage){
+//                    Apis.TIP('org的body:'+body);
                     Fetch.FETCHPOST('getOrgList',body,(res) => {
                         if(res.ok){
-                            let list = (typeof res.data == 'string') ? JSON.parse(res.data) : res.data;
-                            _this.volunteerList = _this.volunteerList.concat(list);
-                            if(list.length < _this.Size){
-                                _this.MaxPage = true;
+//                            Apis.TIP("orgList:"+JSON.stringify(res.data));
+                            let data = (typeof res.data == 'string') ? JSON.parse(res.data) : res.data;
+                            if(data["INFO"].code == '512'){
+                                let list = data["COMMUNITY"];
+                                _this.volunteerList = _this.volunteerList.concat(list);
+                                if(list.length < _this.Size){
+                                    _this.MaxPage = true;
+                                }
+                                _this.LoadingShow = 'hide';
+//                                Apis.TIP("volunteerList:"+JSON.stringify(_this.volunteerList));
                             }
-                            _this.LoadingShow = 'hide';
                         }
                     })
                 }
@@ -102,6 +114,7 @@
             },
             loading:function () {
                 const _this = this;
+                Apis.TIP('我加载中');
                 _this.LoadingShow = 'show';
                 if(!_this.MaxPage){
                     _this.Page += 1;
@@ -129,10 +142,29 @@
                        Router.PUSH('/views/webInfo',()=>{});
                    }
                 });
+            },
+            com_actShow:function (obj) {
+                return (obj.enable == 1);
+            },
+            com_orgShow:function(obj){
+                return (obj.enable == 1);
+            },
+            com_actImage:function (obj) {
+                let body = {};
+                body['type'] = 'act';
+                body['head'] = obj["image"];
+//                Apis.TIP(Apis.GETIMAGE(body));
+                return Apis.GETHEAD(body);
+            },
+            com_orgHead:function(obj){
+                let body = {};
+                body['type'] = 'org';
+                body['head'] = obj["head"];
+                return Apis.GETHEAD(body);
             }
         },
         created:function () {
-//            this.initData();
+            this.initData();
         }
     }
 </script>

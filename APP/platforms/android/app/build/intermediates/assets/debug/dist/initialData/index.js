@@ -55,7 +55,7 @@
 	        userId: "",
 	        userName: "",
 	        password: "",
-	        head: "setHead.jpg",
+	        head: "login.jpg",
 	        name: "",
 	        sex: "",
 	        birth: "",

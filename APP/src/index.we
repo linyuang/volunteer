@@ -58,45 +58,54 @@
         },
         methods:{
             clearStorage:function () {
+//                Apis.TIP('我进入clearStorage');
+//                const _this = this;
                 let keys = [];
                 Apis.GETKEYS((event) => {
                     if(event.result == 'success'){
                         keys = event.data;
                         keys.forEach((item) => {
                             Apis.REMOVEITEM(item,(res)=>{
-                                if(res.result == 'success'){}
+                                if(res.result == 'success'){
+                                    Apis.STORAGELENGTH((res) => {
+                                        if(res.result == 'success'){
+                                            if(res.data == 0){
+//                                                Apis.TIP('我清除忘数据');
+//                                                _this.initialData();
+                                            }
+                                        }
+                                    })
+                                }
                             })
                         })
                     }
                 })
             },
             initialData:function () {
-                if(event.result == 'success' && event.data == 0){
-                    for(let [key,value] of Object.entries(Store.state)){
-                        Apis.SETITEM(key,value,(event)=>{
-                            if(event.result == "success"){
-//                            Apis.TIP("初始化成功");
-                            }
-                        });
-                    }
+                for(let [key,value] of Object.entries(Store.state)){
+                    Apis.SETITEM(key,value,(event)=>{
+                        if(event.result == "success"){
+//                           Apis.TIP("初始化成功");
+                        }
+                    });
                 }
 //                Apis.STORAGELENGTH((event) => {
 //
 //                })
             },
-            removeData:function () {
-                let _this = this;
-                Apis.GETITEM('SaveIf',(event) => {
-                    if (event.result == "success"){
-                        if(event.data == "false"){
-                            _this.initialData();
-                        }
-                    }
-                })
-            },
+//            removeData:function () {
+//                let _this = this;
+//                Apis.GETITEM('SaveIf',(event) => {
+//                    if (event.result == "success"){
+//                        if(event.data == "false"){
+//                            _this.initialData();
+//                        }
+//                    }
+//                })
+//            },
         },
         created:function () {
-            this.removeData();
+            this.clearStorage();
         }
     }
 </script>
