@@ -312,7 +312,7 @@
         Data.forEach((item) => {
           result[item.ref] = item.value;
         });
-        result[_this.QuotInfo.ref] = _this.QuotInfo.value.replace('%','25%').replace('$','24%').replace('@','40%');
+        result[_this.QuotInfo.ref] = _this.QuotInfo.value.replace('%','%25').replace('$','%24').replace('@','%40');
         result["head"] = _this.HeadImage.trueName;
         body = 'json=' + JSON.stringify(result);
         console.log("body=>"+body);

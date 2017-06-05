@@ -2,13 +2,13 @@
   <div class="home">
     <div class="header">
       <p class="headerTxT" v-text="HeadTxT"></p>
-      <button class="headerMenu" type="button">设置</button>
+      <a class="headerMenu" href="javascript:;" @click="loginOut()">退出登录</a>
     </div>
     <div class="content">
       <div class="leftPart">
         <div class="baseInfo">
           <div class="orgHead">
-            <img class="orgHeadImage" :src="HeadImageSrc" alt="组织头像" title="组织头像">
+            <img class="orgHeadImage" :style="{backgroundImage:'url('+ HeadImageSrc +')'}">
           </div>
           <p class="orgName" v-text="ComName"></p>
         </div>
@@ -76,7 +76,8 @@
               isSelect:false
             }
           ]
-        }
+        },
+        adminHead:require('../assets/cover_image.png')
       }
     },
     methods:{
@@ -88,15 +89,15 @@
         if(loginType == 0){
           console.log('我是管理员');
           _this.ComId = info["id"];
-          _this.Comhead = info["head"];
-          _this.ComName = info["name"];
+          _this.HeadImageSrc = _this.adminHead;
+          _this.ComName = '管理员';
           _this.$router.push('/home/'+ _this.ComId +'/org');
         }else {
           console.log('我是组织');
           _this.ComId = info["id"];
-          _this.Comhead = info["head"];
+          _this.ComHead = info["head"];
           _this.ComName = info["name"];
-          console.log(_this.Comhead);
+          console.log(_this.ComHead);
           _this.$router.push('/home/'+_this.ComId+'/baseInfo');
         }
       },
@@ -118,14 +119,21 @@
       upDataInfo(obj){
         const _this = this;
         _this.ComName = obj["name"];
-        _this.Comhead = obj["head"];
+        _this.ComHead = obj["head"];
+      },
+      loginOut(){
+        const _this = this;
+        this.$store.commit('LOGINOUT');
+        _this.$router.push('/');
       },
       com_headImg(){
         const _this = this;
+        if(_this.$store.state.CommunityLoginType == 0){
+            return;
+        }
         let body = {};
         body["type"] = 'org';
-        body["head"] = _this.Comhead;
-        console.log(body);
+        body["head"] = _this.ComHead;
         _this.$store.dispatch('IMAGEURL',body)
           .then((res) => {
              _this.HeadImageSrc = res;
@@ -136,6 +144,9 @@
       com_initData(){
         return (this.$store.state.CommunityLoginType == 0) ? this.FunctionalModules.administrator : this.FunctionalModules.community;
       }
+    },
+    watch:{
+      ComHead:'com_headImg'
     },
     mounted(){
       this.homePush();
@@ -178,10 +189,13 @@
     margin-left: 0.5rem;
   }
   .headerMenu{
+    display: block;
     width: 1rem;
     height: 100%;
     font-size: 0.2rem;
     font-weight: bold;
+    line-height: 0.5rem;
+    text-decoration: none;
   }
   .content{
     display: flex;
@@ -221,13 +235,13 @@
   .orgHead{
     width: 1.5rem;
     height: 1.5rem;
-    border-radius: 0.2rem;
     background-color: #ffffff;
   }
   .orgHeadImage{
     width: 1.5rem;
     height: 1.5rem;
-    font-size: 0.1rem;
+    background-size: cover;
+    background-position: center center;
   }
   .orgName{
     margin-top: 0.15rem;

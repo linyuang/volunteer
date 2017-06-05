@@ -91,6 +91,13 @@ export function FINISHACTIVITY({},body) {
     })
 }
 
+export function GETCOMMUNITY({},body) {
+  return Req.postGetCommunity(body)
+    .then((res) => {
+      return res;
+    })
+}
+
 export function RETURNJOINTABLE({},body) {
   return Req.postReturnJoinTable(body)
     .then((res) => {
@@ -203,8 +210,10 @@ export function GETLOCALPEOPLELIST() {
     })
 }
 
-export function IMAGEURL({},body) {
-  let url = 'http://192.168.191.1:8080/Yuc/YucResource/';
+export function IMAGEURL({state},body) {
+  const ProdURL = 'http://localhost:8080/Yuc/YucResource/';
+  const DeveLURL = 'http://192.168.191.1:8080/Yuc/YucResource/';
+  let url = (state.ProductionMode) ? ProdURL : DeveLURL;
   let head = body["head"];
   let img = String(head).substr(String(head).lastIndexOf('\\') + 1);
   console.log(img);

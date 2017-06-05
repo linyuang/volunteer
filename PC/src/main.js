@@ -31,4 +31,3 @@ Vue.config.productionTip = false;
 /* eslint-disable no-new */
 new Vue(Vue.util.extend({ el: '#app', router, store }, App));
 
-router.push('/');
