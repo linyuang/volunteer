@@ -1,0 +1,20 @@
+exports.state = {
+    Login:"false",
+    SaveIf:"false",
+    Development:"true",
+    UserInfo:{
+        userId:"",
+        userName:"",
+        password:"",
+        head:"login.jpg",
+        name:"",
+        sex:"",
+        birth:"",
+        identity:"",
+        address:"",
+        email:"",
+        phone:"",
+        time:"",
+        quotation:""
+    },
+};

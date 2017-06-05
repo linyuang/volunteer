@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "C:\\Weex\\android\\school-volunteer\\platforms\\android\\app\\build\\intermediates\\res\\merged\\release\\menu\\main.xml",
+        "source": "C:\\Weex\\android\\school-volunteer\\platforms\\android\\app\\src\\main\\res\\menu\\main.xml"
+    },
+    {
+        "merged": "C:\\Weex\\android\\school-volunteer\\platforms\\android\\app\\build\\intermediates\\res\\merged\\release\\menu\\main_scan.xml",
+        "source": "C:\\Weex\\android\\school-volunteer\\platforms\\android\\app\\src\\main\\res\\menu\\main_scan.xml"
+    }
+]

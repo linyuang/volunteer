@@ -1,0 +1,286 @@
+<template>
+    <div class="home">
+        <div class="head">
+            <text class="titleText">首页</text>
+        </div>
+        <scroller class="content" show-scrollbar="false" scroll-direction="vertical">
+            <slider class="slider" interval="2000" auto-play="true">
+                <div class="sliderImageBox" if="{{com_actShow(item)}}" repeat="{{item in sliderActList}}" onclick="actClick(item)">
+                    <image class="sliderImage" resize="cover" src="{{com_actImage(item)}}"></image>
+                </div>
+                <indicator class="indicator"></indicator>
+            </slider>
+            <!--<div class="organization">-->
+                <!--<text>{{com_text()}}</text>-->
+            <!--</div>-->
+            <div class="organization" if="{{com_orgShow(typeItem)}}" repeat="{{typeItem in volunteerList}}" onclick="orgClick(typeItem)">
+                <div class="orgList">
+                    <div class="orgTitleBox">
+                        <text class="orgTitleText">{{typeItem.name}}</text>
+                    </div>
+                    <div class="orgContentBox">
+                        <div class="orgLogoBox">
+                            <image class="orgLogo" src="{{com_orgHead(typeItem)}}"></image>
+                        </div>
+                        <div class="orgQuotationBox">
+                            <text class="orgQuotationText">{{typeItem.quotation}}</text>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <loading class="loading" onloading="loading()" display="{{LoadingShow}}">
+                <text class="loadingTxT">loading......</text>
+            </loading>
+        </scroller>
+    </div>
+</template>
+
+<script>
+    import Fetch from '../stream/fetch'
+    import Apis from '../mixins/api'
+    import Router from '../router/router'
+    const webOrg = new BroadcastChannel('WebInfo');
+    module.exports = {
+        data: {
+            Page:1,
+            Size:10,
+            MaxPage:false,
+            LoadingShow:'hide',
+            sliderActList: [
+            ],
+            volunteerList:[
+//                {
+//                    id:'001',
+//                    orgName:'青年志愿者协会',
+//                    logoUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/loadingCoverImage.jpg',
+//                    quotation:'&nbsp&nbsp&nbsp&nbsp xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+//                },
+//                {
+//                    id:'002',
+//                    orgName:'存心善堂',
+//                    logoUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/hong.png',
+//                    quotation:'&nbsp&nbsp&nbsp&nbsp xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+//                }
+            ]
+        },
+        methods: {
+            initData:function(){
+                this.upDataHomeAct();
+                this.upDataOrgList();
+            },
+            upDataHomeAct:function () {
+                const _this = this;
+                let result = {};
+                let body = 'json=';
+                result["page"] = 0;
+                result["size"] = 4;
+                body += JSON.stringify(result);
+                Fetch.FETCHPOST('getHomeActs',body,(res) => {
+                    if(res.ok){
+                        let data = (typeof res.data == 'string') ? JSON.parse(res.data) : res.data;
+                        if(data["INFO"].code == '610'){
+                            _this.sliderActList = data["ACTIVITY"];
+//                            Apis.TIP('sliderActList:'+JSON.stringify(data));
+                        }
+                    }
+                })
+            },
+            upDataOrgList:function () {
+                const _this = this;
+                let result = {};
+                let body = "json=";
+                result["page"] = _this.Page - 1;
+                result["size"] = _this.Size;
+                body += JSON.stringify(result);
+                if(!_this.MaxPage){
+//                    Apis.TIP('org的body:'+body);
+                    Fetch.FETCHPOST('getOrgList',body,(res) => {
+                        if(res.ok){
+//                            Apis.TIP("orgList:"+JSON.stringify(res.data));
+                            let data = (typeof res.data == 'string') ? JSON.parse(res.data) : res.data;
+                            if(data["INFO"].code == '512'){
+                                let list = data["COMMUNITY"];
+                                _this.volunteerList = _this.volunteerList.concat(list);
+                                if(list.length < _this.Size){
+                                    _this.MaxPage = true;
+                                }
+                                _this.LoadingShow = 'hide';
+//                                Apis.TIP("volunteerList:"+JSON.stringify(_this.volunteerList));
+                            }
+                        }
+                    })
+                }
+
+            },
+            loading:function () {
+                const _this = this;
+                Apis.TIP('我加载中');
+                _this.LoadingShow = 'show';
+                if(!_this.MaxPage){
+                    _this.Page += 1;
+                    _this.upDataOrgList()
+                }else{
+                    Apis.TOAST('所有活动加载完毕，暂无更多活动');
+                }
+            },
+            orgClick:function (obj) {
+                let result = {};
+                result["type"] = 'org';
+                result["id"] = (obj.id) ? obj.id : '';
+                Apis.SETITEM('webInfo',JSON.stringify(result),(event) => {
+                    if(event.result == "success"){
+                        Router.PUSH('/views/webInfo',()=>{});
+                    }
+                });
+            },
+            actClick:function (obj) {
+                let result = {};
+                result["type"] = 'act';
+                result["id"] = (obj.id) ? obj.id : '';
+                Apis.SETITEM('webInfo',JSON.stringify(result),(event) => {
+                   if(event.result == 'success'){
+                       Router.PUSH('/views/webInfo',()=>{});
+                   }
+                });
+            },
+            com_actShow:function (obj) {
+                return (obj.enable == 1);
+            },
+            com_orgShow:function(obj){
+                return (obj.enable == 1);
+            },
+            com_actImage:function (obj) {
+                let body = {};
+                body['type'] = 'act';
+                body['head'] = obj["image"];
+//                Apis.TIP(Apis.GETIMAGE(body));
+                return Apis.GETHEAD(body);
+            },
+            com_orgHead:function(obj){
+                let body = {};
+                body['type'] = 'org';
+                body['head'] = obj["head"];
+                return Apis.GETHEAD(body);
+            }
+        },
+        created:function () {
+            this.initData();
+        }
+    }
+</script>
+
+<style scoped>
+    .home{
+        display: flex;
+        flex: 1;
+    }
+    .head{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100px;
+        background-color: #ffffff;
+        border-bottom-style:solid;
+        border-bottom-color: #c3c3c3;
+        border-bottom-width: 2px;
+    }
+    .titleText{
+        font-size: 35px;
+        font-weight: bold;
+        color: #000000;
+    }
+    .content{
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        background-color: #eeeeee;
+    }
+   .loading{
+        justify-content: center;
+        align-items: center;
+        width: 750px;
+    }
+    .loadingTxT{
+        font-size: 30px;
+        color: #4f4f4f;
+    }
+    .slider{
+        width: 750px;
+        height: 500px;
+        border-bottom-width: 2px;
+        border-bottom-style: solid;
+        border-bottom-color: #c3c3c3;
+    }
+    .sliderImageBox{
+        width: 750px;
+        height: 500px;
+        position: relative;
+    }
+    .sliderImage{
+        width: 750px;
+        height: 500px;
+    }
+    .indicator{
+        width: 200px;
+        height: 70px;
+        item-color: #ffffff;
+        item-selected-color: #000000;
+        item-size: 15px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+    .organization{
+        width: 750px;
+        margin-top: 20px;
+        background-color: #ffffff;
+    }
+    .orgList{
+        width: 750px;
+        background-color: #ffffff;
+    }
+    .orgTitleBox{
+        display: flex;
+        width: 750px;
+        height: 80px;
+        justify-content: center;
+    }
+    .orgTitleText{
+        font-size: 40px;
+        color: #000000;
+        margin-left: 30px;
+    }
+    .orgContentBox{
+        display:flex;
+        flex-direction:row;
+        width: 750px;
+        height: 250px;
+    }
+    .orgLogoBox{
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+    }
+    .orgLogo{
+        width: 187px;
+        height: 187px;
+    }
+    .orgQuotationBox{
+        display: flex;
+        flex: 2;
+        width: 500px;
+        height: 250px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .orgQuotationText{
+        width: 400px;
+        height: auto;
+        color: #c3c3c3;
+        font-size: 30px;
+        lines:3;
+        text-overflow: ellipsis;
+    }
+</style>

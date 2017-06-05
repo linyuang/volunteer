@@ -1,0 +1,280 @@
+<template>
+    <div class="friend">
+        <div class="head">
+            <text class="titleText">盟友</text>
+        </div>
+        <scroller class="content" show-scrollbar="false" scroll-direction="vertical">
+            <div class="friendFindBox">
+                <div class="friFind">
+                    <div class="friFindClick">
+                        <image class="friFindClickImage" src="file:///android_asset/drawable/find.png"></image>
+                        <text class="friFindClickText">搜索</text>
+                    </div>
+                </div>
+                <div class="friendAddList">
+                    <div class="addListBox" repeat="{{addItem in friendAddList}}">
+                        <image class="addListImage" src="{{addItem.imageUrl}}"></image>
+                        <text class="addListName">{{addItem.name}}</text>
+                    </div>
+                </div>
+            </div>
+            <div class="friendList">
+                <div class="friListBox" repeat="{{listItem in friendList}}">
+                    <div  class="friListTitleBox"  onclick="friendListHidden(listItem)">
+                        <image class="friListTriangleB" src="file:///android_asset/drawable/triangle_down.png"></image>
+                        <text class="friListType">{{listItem.listType}}</text>
+                    </div>
+                    <div class="{{friListContentBox(listItem)}}">
+                        <div class="friBox" repeat="{{friItem in listItem.listContent}}" style="height: {{listItem.height}}">
+                            <div class="friImageBox">
+                                <image class="friImage" src="{{friItem.imageUrl}}"></image>
+                            </div>
+                            <div class="friInformationBox">
+                                <text class="friName">{{friItem.name}}</text>
+                                <text class="friInformation">{{friItem.information}}</text>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </scroller>
+    </div>
+</template>
+
+<script>
+    import apis from '../mixins/api';
+    const animation = weex.requireModule('animation');
+    module.exports = {
+        data: {
+            visibility:'visible',
+            friendAddList:[
+                {
+                    name:'新朋友',
+                    imageUrl:'file:///android_asset/drawable/add_friend.png'
+                },
+                {
+                    name:'组织',
+                    imageUrl:'file:///android_asset/drawable/people.png'
+                }
+            ],
+            friendList:[
+                {
+                    index:0,
+                    show:true,
+                    height:'180px',
+                    listType:'我的好友',
+                    listContent:[
+                        {
+                            name:'000',
+                            imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/friend/number0.png',
+                            information:'xxxxxx'
+                        },
+                        {
+                            name:'001',
+                            imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/friend/number1.png',
+                            information:'xxxxxx'
+                        },
+                        {
+                            name:'002',
+                            imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/friend/number2.png',
+                            information:'xxxxxx'
+                        },
+                        {
+                            name:'003',
+                            imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/friend/number3.png',
+                            information:'xxxxxx'
+                        },
+                    ]
+                },
+                {
+                    index:1,
+                    show:true,
+                    height:'180px',
+                    listType:'天使行动小组',
+                    listContent:[
+                        {
+                            name:'004',
+                            imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/friend/number4.png',
+                            information:'xxxxxx'
+                        },
+                        {
+                            name:'005',
+                            imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/friend/number5.png',
+                            information:'xxxxxx'
+                        },
+                        {
+                            name:'006',
+                            imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/friend/number6.png',
+                            information:'xxxxxx'
+                        },
+                        {
+                            name:'007',
+                            imageUrl:'https://raw.githubusercontent.com/linyuang/testImageAssets/master/image/friend/number7.png',
+                            information:'xxxxxx'
+                        },
+                    ]
+                }
+            ]
+        },
+        computed:{
+        },
+        methods: {
+            friListContentBox:function (item) {
+                return this.friendList[item.index].show ? "friListContentBox" : "friListContentBoxHidden";
+            },
+            friendListHidden:function (item) {
+                let _this = this;
+                let Show = _this.friendList[item.index].show;
+                _this.friendList[item.index].show = !Show;
+            }
+        },
+        created:function () {
+
+        }
+    }
+</script>
+
+<style scoped>
+    .friend{
+        flex: 1;
+        position: absolute;
+        overflow-x: hidden;
+    }
+    .head{
+        justify-content: center;
+        align-items: center;
+        height: 100px;
+        background-color: #ffffff;
+        border-bottom-style:solid;
+        border-bottom-color: #c3c3c3;
+        border-bottom-width: 2px;
+    }
+    .titleText{
+        font-size: 35px;
+        font-weight: bold;
+        color: #000000;
+    }
+    .content{
+        flex: 1;
+        flex-direction: column;
+        background-color:#eeeeee;
+    }
+    .friendFindBox{
+        width: 750px;
+        height: 250px;
+        background-color: #ffffff;
+    }
+    .friFind{
+        width: 750px;
+        height: 80px;
+        justify-content: center;
+        align-items: center;
+    }
+    .friFindClick{
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        width: 700px;
+        height: 60px;
+        border-radius: 5px;
+        background-color: #c3c3c3;
+    }
+    .friFindClickImage{
+        width: 25px;
+        height: 25px;
+    }
+    .friFindClickText{
+        font-size: 25px;
+        margin-left: 10px;
+    }
+    .friendAddList{
+        flex-direction: row;
+        width: 750px;
+        height: 170px;
+    }
+    .addListBox{
+        flex-direction: column;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+    }
+    .addListImage{
+        width: 75px;
+        height: 50px;
+    }
+    .addListName{
+        font-size: 25px;
+        margin-top: 10px;
+    }
+    .friendList{
+        width: 750px;
+        background-color: #ffffff;
+        margin-top: 50px;
+    }
+    .friListBox{
+        width: 750px;
+        border-top-width: 2px;
+        border-top-color: #e3e3e3;
+        border-top-style: solid;
+    }
+    .friListTitleBox{
+        flex-direction: row;
+        align-items: center;
+        width: 750px;
+        height: 100px;
+    }
+    .friListTriangleB{
+        width: 23px;
+        height: 13px;
+        margin-left: 25px;
+    }
+    .friListType{
+        font-size: 25px;
+        margin-left: 25px;
+    }
+    .friListContentBox{
+        position: static;
+        width: 750px;
+     }
+    .friListContentBoxHidden{
+        position: absolute;
+        left: -100%;
+    }
+    .friBox{
+        flex-direction: row;
+        width: 750px;
+        border-top-width: 2px;
+        border-top-style: solid;
+        border-top-color: #c3c3c3;
+    }
+    .friImageBox{
+        flex: 1;
+        height: 180px;
+        justify-content: center;
+        align-items: center;
+    }
+    .friImage{
+        width: 100px;
+        height: 100px;
+        border-radius: 75px;
+    }
+    .friInformationBox{
+        flex-direction: column;
+        flex: 3;
+        justify-content: center;
+        height: 180px;
+    }
+    .friName{
+        font-size: 40px;
+        font-weight: bold;
+        color: #000000;
+        margin-left: 50px;
+    }
+    .friInformation{
+        lines:2;
+        text-overflow: ellipsis;
+        font-size: 20px;
+        color: #c3c3c3;
+        margin-left: 50px;
+    }
+</style>
