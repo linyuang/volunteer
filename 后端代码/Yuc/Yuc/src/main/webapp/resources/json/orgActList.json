@@ -1,0 +1,35 @@
+{
+  "comId":"001",
+  "orgActList":[
+    {
+      "name":"xxxxxx",
+      "people":10,
+      "enable":1
+    },
+    {
+      "name":"xxaxxa",
+      "people":100,
+      "enable":0
+    },
+    {
+      "name":"bxxbxx",
+      "people":70,
+      "enable":1
+    },
+    {
+      "name":"xyxyxy",
+      "people":20,
+      "enable":1
+    },
+    {
+      "name":"ababab",
+      "people":30,
+      "enable":0
+    },
+    {
+      "name":"cdcdcd",
+      "people":40,
+      "enable":1
+    }
+  ]
+}
