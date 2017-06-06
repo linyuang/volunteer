@@ -1,3 +1,3 @@
 # volunteer
 毕业设计，移动APP+PC后台（weex+vue）
-项目还在修改中过26号会上传完整初代版
+项目代码在分支2 uploadBranch1 里，readme文件正在修改中。
